@@ -1,6 +1,6 @@
 # netRo
 
-Here’s the updated `README.md` with detailed instructions on how to install all the required dependencies and your email added:
+
 
 ---
 
