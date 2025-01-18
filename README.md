@@ -127,10 +127,10 @@ Start **netRo**:
 ## Screenshots
 
 ### System Dashboard
-![System Dashboard](screenshots/system_dashboard.png)
+![System Dashboard](1.png)
 
 ### Advanced Network Tool
-![Advanced Network Tool](screenshots/network_tool.png)
+![Advanced Network Tool](2.png)
 
 ---
 
