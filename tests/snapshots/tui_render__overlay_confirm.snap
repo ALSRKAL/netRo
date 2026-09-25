@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: "render_app(&mut app, 100, 30)"
+---
+│ NAVIGATION          ┌ OVERVIEW ──────────────────────────────────────────────────────────────────┐
+│ > Dashboard         │Host        zbook                                                           │
+│   System +          │OS          Ubuntu 24.04 24.04                                              │
+│   Network +         │Kernel      6.8.0-88-generic                                                │
+│   Discovery +       └────────────────────────────────────────────────────────────────────────────┘
+│   Scanner -         ┌ HEALTH ────────────────────────────────────────────────────────────────────┐
+│   Security x        │ System    +    Routes    +                                                 │
+│   Monitor |         │ CPU       +    DNS       +                                                 │
+│   Doctor x          │ Memory    +    Internet  +                                                 │
+│   Reports           │ Storage   !    Firewall  !                                                 │
+│   Snapshots -   ┌ CONFIRM ─────────────────────────────────────────────────────┐                 │
+│   Settings      │Block 192.168.1.15                                            │                 │
+│                 │                                                              │                 │
+│ 88/100 (B)      │IP: 192.168.1.15                                              │─────────────────┘
+│ Security score  │Scope: This machine                                           │─────────────────┐
+│                 │This changes the firewall of THIS machine only. It does NOT   │                 │
+│                 │disconnect the device from the router.                        │                 │
+│                 │Continue?                                                     │─────────────────┘
+│                 └──────────────────────────────────────────────────────────────┘─────────────────┐
+│                     │CPU       #####.......   42.0%                                              │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+│                     ┌ FINDINGS ──────────────────────────────────────────────────────────────────┐
+│                     │ > x ERROR  Host firewall appears disabled                                  │
+│                     │   - INFO  SSH is listening on all interfaces                               │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ Esc Back
+  Tab next screen   Ctrl+P Palette

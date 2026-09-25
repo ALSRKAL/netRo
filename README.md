@@ -1,170 +1,262 @@
 # netRo
 
+Cross-platform system, network, diagnostics, monitoring and security-audit CLI
+for Linux, Windows and macOS. Every result comes from a real check; anything a
+platform cannot do is reported as `UNSUPPORTED`, `DEPENDENCY_MISSING` or
+`PERMISSION_DENIED` instead of being faked.
 
+> **Status:** 5.0.0 — Rust rewrite of the original Bash dashboard
+> (`legacy/netRo.sh`). See [`docs/AUDIT.md`](docs/AUDIT.md) for what the old
+> script did and why it was replaced.
 
----
+## Two ways to use it
 
-# netRo: System Dashboard and Advanced Network Tool
+* **Interactive TUI** — run `netro` (or `netro tui`) for a dashboard with
+  System, Network, Discovery, Scanner, Security, Monitor, Doctor, Reports,
+  Snapshots and Settings screens, a command palette (`Ctrl+P`), search (`/`)
+  and contextual help (`?`). See [`docs/TUI.md`](docs/TUI.md).
+* **Scriptable CLI** — every command below works non-interactively with
+  `--json`/`--csv` for automation.
 
-**netRo** is a powerful Bash script that combines a **System Dashboard** and an **Advanced Network Tool** into one seamless interface. It provides real-time system monitoring, health checks, and a suite of network diagnostic utilities, making it an essential tool for system administrators and network enthusiasts.
+Both modes call the same diagnostic engine; the TUI never shells out.
 
----
+## What it does
 
-## Features
+* **System** — OS/kernel/arch/uptime/virtualization, CPU (usage, cores, load,
+  frequency, temperatures), memory/swap, every mounted filesystem, GPUs
+  (NVIDIA/AMD/Intel/Apple) with live metrics where the driver exposes them.
+* **Network** — interfaces with type/state/MAC/IPv4/IPv6/MTU/DHCP, routing
+  tables, resolver configuration and real DNS queries (built-in client), IPv4
+  and IPv6 connectivity, latency and packet loss, traceroute.
+* **Discovery and scanning** — neighbor-table/ICMP/TCP discovery with MAC vendor
+  lookup, TCP connect scanning with banner and TLS certificate detection,
+  optional UDP probes. Public targets require explicit authorization.
+* **Connections and processes** — live TCP/UDP connections mapped to processes,
+  listening sockets with exposure classification, process inventory.
+* **Security audit** — platform-aware firewall state, exposed services,
+  account/password policy review, SSH configuration, file-integrity baselines
+  (SHA-256) with added/removed/modified detection.
+* **Doctor** — one command that runs all of the above and reports findings with
+  severity, evidence, impact, recommendation and a transparent score.
+* **Monitoring and reports** — live sampling (text or JSON Lines), and reports
+  as text, JSON, CSV or self-contained HTML.
 
-### System Dashboard
-- **System Information**: Displays hostname, OS, and kernel version.
-- **Network Information**: Shows IP addresses and network interfaces.
-- **Storage Information**: Provides disk usage statistics.
-- **Security Information**: Checks for suspicious processes, open ports, unauthorized users, and file integrity.
-- **Real-Time Updates**: Refreshes system information at regular intervals.
+netRo is **local-first**: no telemetry, no external requests unless you
+configure a speed-test server or explicitly run a scan.
 
-### Advanced Network Tool
-- **Ping a Host**: Test connectivity to a remote host.
-- **Port Scanning**: Scan open ports on a target IP or hostname using Nmap.
-- **Network Connections**: View active network connections.
-- **Traceroute**: Trace the route to a remote host.
-- **DNS Lookup**: Perform DNS queries for a domain.
-- **Advanced Nmap Scans**: Perform intense, OS detection, version detection, and custom Nmap scans.
-- **Network Interface Check**: Display network interface details.
-- **Public IP Check**: Fetch the system's public IP address.
-- **Device Listing**: List all devices on the local network.
-- **Device Blocking**: Block or unblock a device using IP tables.
-- **Save Scan Results**: Save scan results to a file.
-- **Device Details**: Fetch detailed information about a specific device.
+## Supported platforms
 
----
+| Platform | Status | Notes |
+|----------|--------|-------|
+| Linux (x64, arm64) | Primary, fully tested | Ubuntu/Debian/Fedora/Arch families; systemd and SysV; ufw/firewalld/nftables/iptables |
+| Windows 10/11 (x64) | Implemented | PowerShell/CIM providers, Windows Defender Firewall, native elevation check; validate on your fleet before relying on it |
+| macOS 12+ (Intel, Apple Silicon) | Implemented | BSD tools, Application Firewall/pf, `system_profiler`; validate on your fleet before relying on it |
 
-## Installation
+CI builds and tests Linux, Windows x64, macOS x64 and macOS arm64. See
+[`docs/FINAL_AUDIT.md`](docs/FINAL_AUDIT.md) for exactly what was executed
+where.
 
-### Prerequisites
-To run **netRo**, ensure the following tools are installed on your system:
-- **Bash**: The script is written in Bash and requires a Bash shell.
-- **Nmap**: For port scanning and advanced network diagnostics.
-- **Traceroute**: For route tracing.
-- **Net-tools**: For network interface checks (optional, depending on your system).
-- **Curl**: For fetching the public IP address.
+## Install
 
-### Step-by-Step Installation
+### From a release binary
 
-#### 1. Install Required Dependencies
-On **Debian/Ubuntu-based systems**, run:
-```bash
-sudo apt update
-sudo apt install bash nmap traceroute net-tools curl
+Download the archive for your platform from the releases page, unpack and put
+`netro` on your `PATH`:
+
+```sh
+# Linux / macOS
+tar -xzf netro-linux-x64.tar.gz
+sudo install -m 0755 netro-linux-x64 /usr/local/bin/netro
+netro version
 ```
 
-On **Red Hat/CentOS-based systems**, run:
-```bash
-sudo yum install bash nmap traceroute net-tools curl
+```powershell
+# Windows
+Expand-Archive netro-windows-x64.exe.zip -DestinationPath .
+.\netro-windows-x64.exe version
 ```
 
-On **Arch Linux-based systems**, run:
-```bash
-sudo pacman -S bash nmap traceroute net-tools curl
-```
+### From source
 
-#### 2. Clone the Repository
-Clone the **netRo** repository to your local machine:
-```bash
-git clone https://github.com/ALSRKAL/netRo.git
+Requires a Rust toolchain (1.83+):
+
+```sh
+git clone https://github.com/ALSRKAL/netRo
 cd netRo
+cargo build --release
+./target/release/netro version
 ```
 
-#### 3. Make the Script Executable
-Make the script executable:
-```bash
-chmod +x netRo.sh
+To build without TLS probing (avoids the `ring` C dependency, useful for
+cross-compiling without a target C toolchain):
+
+```sh
+cargo build --release --no-default-features
 ```
 
-#### 4. Run the Script
-Start **netRo**:
-```bash
-./netRo.sh
+## Quick start
+
+```sh
+netro                            # interactive TUI (on a terminal)
+netro doctor                     # full health check with evidence
+netro doctor --json | jq         # machine-readable
+netro system                     # OS/CPU/memory/storage/GPU
+netro network interfaces
+netro network dns example.com
+netro network scan 127.0.0.1 --ports common
+netro network scan 10.0.0.5 --authorized --ports 22,80,443
+netro network discover --method auto
+netro network speedtest --provider iperf3 --server speed.internal.example
+netro connections --state ESTABLISHED
+netro processes --sort memory --limit 10
+netro security audit
+netro firewall status
+netro integrity baseline create && netro integrity scan
+netro monitor --interval 2
+netro report --html report.html
 ```
 
----
+## Permissions
 
-## Usage
+netRO never escalates privileges by itself. Commands that need it fail with:
 
-### System Dashboard
-1. Launch the script:
-   ```bash
-   ./netRo.sh
-   ```
+```
+error: PERMISSION_DENIED: blocking traffic requires root on Linux (hint: run the command with sudo, or as root)
+```
 
-2. Use the menu to navigate through the options:
-   - **1**: Show System Information
-   - **2**: Show Network Information
-   - **3**: Show Storage Information
-   - **4**: Show Security Information
-   - **5**: Show All Information
-   - **6**: Launch Advanced Network Tool
-   - **7**: Exit
+Typical privilege requirements:
 
-### Advanced Network Tool
-1. From the System Dashboard, select **Option 6** to launch the Advanced Network Tool.
+| Operation | Requirement |
+|-----------|-------------|
+| System/network/process inventory | Normal user |
+| Process list of other users, TCP connections of other users | root/Administrator |
+| Full `/etc/shadow` password status | root |
+| ICMP ping | normal (stock `ping` is unprivileged on modern systems) |
+| Firewall block/unblock | root/Administrator |
+| `firewall block --dry-run` | normal user |
+| macOS pf state | root |
 
-2. Use the menu to perform network-related tasks:
-   - **1**: Ping a Host
-   - **2**: Scan Ports with Nmap
-   - **3**: Check Network Connections
-   - **4**: Trace Route to a Host
-   - **5**: DNS Lookup
-   - **6**: Check Open Ports on a Host
-   - **7**: Advanced Nmap Scan
-   - **8**: Check Network Interfaces
-   - **9**: Check Public IP Address
-   - **10**: Get IP Address
-   - **11**: List All Devices on the Network
-   - **12**: Block/Unblock a Device
-   - **13**: Save Scan Results to File
-   - **14**: Show Device Details
-   - **15**: Exit
+## Optional dependencies
 
----
+netRO detects tools instead of requiring them (`netro dependencies`):
 
-## Screenshots
+| Tool | Used for |
+|------|----------|
+| `ping` | ICMP latency and sweeps (TCP fallback exists) |
+| `traceroute` / `tracert` | hop addresses (built-in TCP tracer otherwise) |
+| `nmap` | advanced discovery only; never required |
+| `arp-scan` | layer-2 discovery (Linux) |
+| `iperf3` | speed tests against your server |
+| `lsof` | process↔connection mapping on macOS |
+| `nvidia-smi` / `rocm-smi` | live GPU metrics |
+| `rkhunter` / `chkrootkit` / `lynis` | opt-in external scans (`security audit --run-external`) |
+| PowerShell | Windows network/firewall/account/service data |
 
-### System Dashboard
-![System Dashboard](1.png)
+## Security limitations
 
-### Advanced Network Tool
-![Advanced Network Tool](2.png)
+Read [`docs/SECURITY.md`](docs/SECURITY.md). In short: netRO is integrity
+monitoring, not antivirus; findings are configuration evidence, not proof of
+compromise; the built-in TCP tracer cannot see intermediate IPs; SYN and
+reliable UDP scanning are not implemented and are reported as such.
 
----
+## JSON and automation
+
+Every command supports `--json` (or `--format csv`). JSON is one valid document
+with no ANSI escapes:
+
+```sh
+netro doctor --json | jq '.data.summary'
+netro monitor --json --count 5 | jq -c '.data | {cpu: .cpu_usage_percent, mem: .memory_utilization_percent}'
+```
+
+Example (abridged):
+
+```json
+{
+  "command": "doctor",
+  "schema_version": 1,
+  "netro_version": "5.0.0",
+  "data": {
+    "checks": [
+      { "id": "system", "status": "PASS", "summary": "Linux (Ubuntu 24.04) ..." },
+      { "id": "security", "status": "FAIL", "summary": "score 82/100 (grade C), 5 finding(s)" }
+    ],
+    "summary": {
+      "passed": 8, "warnings": 2, "failed": 1,
+      "score": { "total": 82, "max": 100, "grade": "C",
+                 "categories": [ { "category": "firewall", "score": 13, "max": 25 } ] }
+    }
+  }
+}
+```
+
+Errors follow the same envelope:
+
+```json
+{"command":"error","error":{"code":"UNAUTHORIZED_SCAN","message":"...","hint":"..."}}
+```
+
+## Performance
+
+Measured on Linux x86_64 with the release build (see `docs/FINAL_AUDIT.md`):
+
+| Metric | Result |
+|--------|--------|
+| Startup (`netro version`) | ~12 ms |
+| `netro system --json` | ~1.0 s, ~21 MB RSS |
+| `netro doctor --json --no-internet` | ~4.7 s, ~22 MB RSS |
+| `netro security audit --json` | ~0.7 s |
+| 10,000-port localhost scan (512 workers) | ~0.37 s |
+| Monitoring steady-state | ~16 ms per sample, near-idle CPU |
+| TUI time-to-first-frame | immediate (checks stream in) |
+| TUI idle CPU | ~0% (redraws throttled to 1 Hz when idle) |
+
+CPU and memory sampling intentionally includes a short measuring window
+(sysinfo requirement), which is why latency/CPU commands take a few hundred
+milliseconds more than pure inventory commands.
+
+## Development
+
+```sh
+cargo fmt --all -- --check          # formatting
+cargo clippy --all-targets -- -D warnings
+cargo test                          # 239 unit, CLI and TUI tests
+cargo build --release
+bash scripts/verify.sh              # full local gate (fmt, clippy, tests, JSON)
+bash scripts/bench.sh               # performance baselines (CLI + TUI)
+```
+
+Cross-compile checks used in CI:
+
+```sh
+cargo check --target x86_64-pc-windows-gnu  --no-default-features
+cargo check --target x86_64-apple-darwin    --no-default-features
+cargo check --target aarch64-apple-darwin   --no-default-features
+```
+
+Layout:
+
+```
+src/cli.rs          clap definitions
+src/commands/       one module per command group
+src/core/           diagnostics logic (dns, scan, security, doctor, ...)
+src/platform/       Linux/Windows/macOS providers implementing the traits
+src/tui/            ratatui/crossterm UI (components, tasks, theme, state)
+src/model.rs        serializable domain types (JSON contract)
+tests/cli.rs        end-to-end CLI contract tests
+docs/               architecture, CLI, security, audit, final audit
+legacy/             original netRo.sh (reference only)
+```
 
 ## Contributing
 
-Contributions are welcome! If you'd like to contribute, please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bugfix.
-3. Commit your changes.
-4. Submit a pull request.
-
----
+* Keep OS-specific code inside `src/platform/<os>/`; core must stay portable.
+* Never add a shell invocation or a fabricated result. Unsupported features must
+  return a structured error and be covered by a test.
+* Add tests for parsers and new checks (`cargo test` must stay green).
+* Run `cargo fmt` and `cargo clippy --all-targets -- -D warnings` before a PR.
+* Document new commands in `docs/CLI.md` and update the README command list.
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-- Inspired by various system monitoring and network diagnostic tools.
-- Thanks to the open-source community for providing the tools and libraries used in this project.
-
----
-
-## Contact
-
-For questions or feedback, feel free to reach out:
-- **GitHub**: [ALSRKAL](https://github.com/ALSRKAL)
-- **Email**: [mohammedalsrkal@gmail.com](mailto:mohammedalsrkal@gmail.com)
-
----
-
-Enjoy using **netRo**! 🚀
-
----
-
+MIT

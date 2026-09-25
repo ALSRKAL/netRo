@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            Overview   Findings   Accounts   Listening Services > Firewall   Integrity
+│   Dashboard         ┌ Firewall ──────────────────────────────────────────────────────────────────┐
+│   System +          │ State  ! WARNING                                                           │
+│   Network +         │  ufw: inactive (ufw status verbose)                                        │
+│   Discovery +       │  b block IP   u unblock (netro-created only)   This changes the firewall of│
+│   Scanner -         │                                                                            │
+│ > Security x        │                                                                            │
+│   Monitor |         └────────────────────────────────────────────────────────────────────────────┘
+│   Doctor x          ┌ RULES ─────────────────────────────────────────────────────────────────────┐
+│   Reports           │Backend        Action     Rule                                              │
+│   Snapshots -       │> ufw          ALLOW      22/tcp ALLOW Anywhere                             │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Left/Right tabs   Enter details

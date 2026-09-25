@@ -1,0 +1,9 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+      Terminal too small
+
+         current: 30x8
+ Resize to at least 40x12, or
+       press q to quit.

@@ -1,0 +1,72 @@
+[package]
+name = "netro"
+version = "5.0.0"
+edition = "2021"
+rust-version = "1.83"
+description = "Cross-platform system, network, diagnostics, monitoring and security-audit CLI"
+license = "MIT"
+repository = "https://github.com/ALSRKAL/netRo"
+readme = "README.md"
+keywords = ["network", "diagnostics", "security", "monitoring", "cross-platform"]
+categories = ["command-line-utilities", "network-programming"]
+default-run = "netro"
+
+[[bin]]
+name = "netro"
+path = "src/main.rs"
+
+[features]
+default = ["tls"]
+# TLS probing for port/service detection. Disable with --no-default-features
+# when cross-compiling without a C toolchain for the target (rustls/ring).
+tls = ["dep:rustls", "dep:webpki-roots", "dep:x509-parser"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive", "wrap_help"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sysinfo = "0.37"
+sha2 = "0.10"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+socket2 = "0.6"
+ctrlc = "3.4"
+ratatui = "0.29"
+crossterm = "0.28"
+unicode-width = "0.2"
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Threading",
+] }
+
+[dependencies.rustls]
+version = "0.23"
+optional = true
+default-features = false
+features = ["ring", "std", "tls12", "logging"]
+
+[dependencies.webpki-roots]
+version = "1"
+optional = true
+
+[dependencies.x509-parser]
+version = "0.17"
+optional = true
+
+[dev-dependencies]
+insta = "1"
+portable-pty = "0.9"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.dev]
+opt-level = 1

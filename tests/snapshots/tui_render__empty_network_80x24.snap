@@ -1,0 +1,28 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            Overview > Interfaces   Routes   DNS   Connectivity   La
+│   Dashboard         ┌ Interfaces ────────────────────────────────────────────┐
+│   System            │Loading...                                              │
+│ > Network           │                                                        │
+│   Discovery         │                                                        │
+│   Scanner           │                                                        │
+│   Security          │                                                        │
+│   Monitor |         │                                                        │
+│   Doctor            │                                                        │
+│   Reports           │                                                        │
+│   Snapshots         │                                                        │
+│   Settings          │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     └────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

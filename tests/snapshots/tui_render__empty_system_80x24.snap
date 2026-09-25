@@ -1,0 +1,28 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ System ────────────────────────────────────────────────┐
+│   Dashboard         │Loading...                                              │
+│ > System            │                                                        │
+│   Network           │                                                        │
+│   Discovery         │                                                        │
+│   Scanner           │                                                        │
+│   Security          │                                                        │
+│   Monitor |         │                                                        │
+│   Doctor            │                                                        │
+│   Reports           │                                                        │
+│   Snapshots         └────────────────────────────────────────────────────────┘
+│   Settings          ┌ PROCESSES ─────────────────────────────────────────────┐
+│                     │Loading...                                              │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     └────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            Overview > Interfaces   Routes   DNS   Connectivity   Latency   Trace   Conn
+│   Dashboard         ┌ Interfaces ────────────────────────────────────────────────────────────────┐
+│   System +          │Interface    Kind      State Addresses            MAC                Speed  │
+│ > Network +         │> wlp3s0     wifi      up    192.168.1.20/24 fe80 34:f3:9a:c2:6e:4c  -      │
+│   Discovery +       │docker0      docker    up    172.17.0.1/16        02:42:aa:bb:cc:dd  10000M │
+│   Scanner -         │                                                                            │
+│   Security x        │                                                                            │
+│   Monitor |         │                                                                            │
+│   Doctor x          │                                                                            │
+│   Reports           │                                                                            │
+│   Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

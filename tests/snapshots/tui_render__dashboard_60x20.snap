@@ -1,0 +1,24 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ OVERVIEW ──────────────────────────┐
+│ > Dashboard         │Host        zbook                   │
+│   System +          │OS          Ubuntu 24.04 24.04      │
+│   Network +         │Kernel      6.8.0-88-generic        │
+│   Discovery +       └────────────────────────────────────┘
+│   Scanner -         ┌ HEALTH ────────────────────────────┐
+│   Security x        │ System    +    Routes    +         │
+│   Monitor |         │ CPU       +    DNS       +         │
+│   Doctor x          │ Memory    +    Internet  +         │
+│   Reports           │ Storage   !    Firewall  !         │
+│   Snapshots -       └────────────────────────────────────┘
+│   Settings          ┌ NETWORK ───────────────────────────┐
+│                     └────────────────────────────────────┘
+│ 88/100 (B)          ┌ RESOURCES ─────────────────────────┐
+│ Security score      └────────────────────────────────────┘
+│                     ┌ FINDINGS ──────────────────────────┐
+│                     │ > x ERROR  Host firewall appears di│
+│                     └────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help
+  Tab next screen   Ctrl+P Palette

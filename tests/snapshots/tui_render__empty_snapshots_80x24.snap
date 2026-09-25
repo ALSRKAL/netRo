@@ -1,0 +1,28 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ SNAPSHOTS ─────────────────────────────────────────────┐
+│   Dashboard         │No snapshots yet. Press c to create one.                │
+│   System            │                                                        │
+│   Network           │                                                        │
+│   Discovery         │                                                        │
+│   Scanner           │                                                        │
+│   Security          │                                                        │
+│   Monitor |         │                                                        │
+│   Doctor            │                                                        │
+│   Reports           │                                                        │
+│ > Snapshots         │                                                        │
+│   Settings          │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     │                                                        │
+│                     └────────────────────────────────────────────────────────┘
+│                     ┌────────────────────────────────────────────────────────┐
+│                     │ c Create snapshot   m Mark for comparison   x Compare  │
+│                     └────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  c create   m mark   x compare   d delete   e export

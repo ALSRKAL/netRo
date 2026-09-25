@@ -1,0 +1,49 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            ┌ OVERVIEW ────────────────────────────────────────────────────────────────────────────────────────────────┐│ LIVE STATUS
+│ > Dashboard           │Host        zbook                                                                                         ││ * idle
+│   System +            │OS          Ubuntu 24.04 24.04                                                                            ││
+│   Network +           │Kernel      6.8.0-88-generic                                                                              ││RESOURCES
+│   Discovery +         └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘│CPU       ####......   42.0
+│   Scanner -           ┌ HEALTH ────────────────────────────────────────────┐┌ NETWORK ───────────────────────────────────────────┐│RAM       #####.....   51.0
+│   Security x          │ System    +    Routes    +                         ││Interface   wlp3s0                                  ││Network   -> 12.4 MB  -> 1.
+│   Monitor |           │ CPU       +    DNS       +                         ││Address     192.168.1.20/24                         ││
+│   Doctor x            │ Memory    +    Internet  +                         ││Gateway     192.168.1.1                             ││Data
+│   Reports             │ Storage   !    Firewall  !                         ││DNS         1.1.1.1, 192.168.1.1                    ││System      now
+│   Snapshots -         │ GPU       +    Processes +                         ││Internet    + CONNECTED                             ││Interfaces  now
+│   Settings            │ Network   +    Security  x                         ││Latency     2 ms                                    ││Connectivitynow
+│                       │                                                    ││                                                    ││Security    now
+│ 88/100 (B)            │ Overall Health  88/100  grade B                    ││                                                    ││
+│ Security score        │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    │└────────────────────────────────────────────────────┘│
+│                       │                                                    │┌ RESOURCES ─────────────────────────────────────────┐│
+│                       │                                                    ││CPU       #####.......   42.0%                      ││
+│                       │                                                    ││RAM       ######......   51.0%                      ││
+│                       │                                                    ││Disk      ##########..   82.0%                      ││
+│                       │                                                    ││Network   -> 12.4 MB  -> 1.8 MB                     ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       │                                                    ││                                                    ││
+│                       └────────────────────────────────────────────────────┘└────────────────────────────────────────────────────┘│
+│                       ┌ FINDINGS ────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│                       │ > x ERROR  Host firewall appears disabled                                                                ││
+│                       │   - INFO  SSH is listening on all interfaces                                                             ││
+│                       │                                                                                                          ││
+│                       │                                                                                                          ││
+│                       │                                                                                                          ││
+│                       └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘│
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ System ────────────────────────────────────────────────────────────────────┐
+│   Dashboard         │CPU                                                                         │
+│ > System +          │ Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz                                  │
+│   Network +         │ 8 logical / 4 physical                                                     │
+│   Discovery +       │ Usage       42.0%                                                          │
+│   Scanner -         │ Frequency   2700 MHz                                                       │
+│   Security x        │ Load average1.20 1.10 0.90                                                 │
+│   Monitor |         │ Package id 051 C                                                           │
+│   Doctor x          │                                                                            │
+│   Reports           │MEMORY                                                                      │
+│   Snapshots -       │ Total       17.2 GB                                                        │
+│   Settings          │ Used        8.6 GB                                                         │
+│                     │ Available   7.5 GB                                                         │
+│ 88/100 (B)          │ Swap        209.7 MB / 2.1 GB                                              │
+│ Security score      └────────────────────────────────────────────────────────────────────────────┘
+│                     ┌ PROCESSES ─────────────────────────────────────────────────────────────────┐
+│                     │PID     Process                         CPU%   Memory    User       Runtime │
+│                     │> 2134  firefox                         18.4   1.9 GB    mohammed   1h 0m   │
+│                     │1032    code                            11.2   1.3 GB    mohammed   2h 0m   │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

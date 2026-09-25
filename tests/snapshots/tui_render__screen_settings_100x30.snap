@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ SETTINGS ──────────────────────────────────────────────────────────────────┐
+│   Dashboard         │Appearance                                                                  │
+│   System +          │ > Theme                 Dark (Left/Right)                                  │
+│   Network +         │   Color mode            auto (Left/Right)                                  │
+│   Discovery +       │   Unicode               off (Left/Right)                                   │
+│   Scanner -         │Monitoring                                                                  │
+│   Security x        │   Dashboard refresh     2.0s (Enter to edit)                               │
+│   Monitor |         │   Monitor interval      2.0s (Enter to edit)                               │
+│   Doctor x          │Scan defaults                                                               │
+│   Reports           │   Discovery method      auto (Left/Right)                                  │
+│   Snapshots -       │   Scan ports            common (Enter to edit)                             │
+│ > Settings          │   Scan timeout (ms)     1000 (Enter to edit)                               │
+│                     │   Scan concurrency      100 (Enter to edit)                                │
+│ 88/100 (B)          │Privacy                                                                     │
+│ Security score      │   Reverse DNS           on (Space/Left/Right)                              │
+│                     │   Vendor lookup         on (Space/Left/Right)                              │
+│                     │Integrations                                                                │
+│                     │   OUI file              - (Enter to edit)                                  │
+│                     │   Speedtest server      - (Enter to edit)                                  │
+│                     │                                                                            │
+│                     │   Save configuration    press Enter or s to save                           │
+│                     │  Configuration is written with 0600 permissions where supported.           │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+│                     ┌────────────────────────────────────────────────────────────────────────────┐
+│                     │ Up/Down move   Left/Right change   Enter edit/save   s save                │
+│                     │ saved config: ~/.config/netro/config.json                                  │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Left/Right change   Enter edit   s save

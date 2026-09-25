@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: "render_app(&mut app, 100, 30)"
+---
+│ NAVIGATION          ┌ SNAPSHOT DIFF ─────────────────────────────────────────────────────────────┐
+│   Dashboard         │ baseline 2026-09-20 09:14  ->  current 2026-09-25 23:11                    │
+│   System +          │                                                                            │
+│   Network +         │NEW LISTENING PORT                                                          │
+│   Discovery +       │  tcp 0.0.0.0:8080                                                          │
+│   Scanner -         │                                                                            │
+│   Security x        │CLOSED PORT                                                                 │
+│   Monitor |         │  tcp 0.0.0.0:22                                                            │
+│   Doctor x          │                                                                            │
+│   Reports           │NEW INTERFACE                                                               │
+│ > Snapshots -       │  wlan0                                                                     │
+│   Settings          │                                                                            │
+│                     │ROUTE CHANGE                                                                │
+│ 88/100 (B)          │  ipv4 0.0.0.0/0 via 192.168.1.254 dev wlp3s0                               │
+│ Security score      │                                                                            │
+│                     │NEW FINDING                                                                 │
+│                     │  firewall.disabled                                                         │
+│                     │                                                                            │
+│                     │ACCOUNT CHANGE                                                              │
+│                     │  admin                                                                     │
+│                     │                                                                            │
+│                     │FIREWALL                                                                    │
+│                     │  firewall enabled changed: yes -> no                                       │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │ Esc close                                                                  │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  c create   m mark   x compare   d delete   e export

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            Overview   Interfaces   Routes   DNS   Connectivity   Latency > Trace   Conn
+│   Dashboard         ┌ Trace ─────────────────────────────────────────────────────────────────────┐
+│   System +          │ Target    1.1.1.1                                                          │
+│ > Network +         │                                                                            │
+│   Discovery +       └────────────────────────────────────────────────────────────────────────────┘
+│   Scanner -         ┌ Result ────────────────────────────────────────────────────────────────────┐
+│   Security x        │ reached: true   method: SystemUtility                                      │
+│   Monitor |         │  1  192.168.1.1                      1ms 1ms 1ms                           │
+│   Doctor x          │  2  *                                *                                     │
+│   Reports           │  3  1.1.1.1                          18ms                                  │
+│   Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION            Overview   Findings   Accounts > Listening Services   Firewall   Integrity
+│   Dashboard         ┌ Listening Services ────────────────────────────────────────────────────────┐
+│   System +          │Address           Proto  Scope      State      Process    PID     Reach     │
+│   Network +         │> 0.0.0.0:22      tcp    all        LISTEN     sshd       842     exposed   │
+│   Discovery +       │127.0.0.1:631     tcp    local      LISTEN     cupsd      1200    local-only│
+│   Scanner -         │                                                                            │
+│ > Security x        │                                                                            │
+│   Monitor |         │                                                                            │
+│   Doctor x          │                                                                            │
+│   Reports           │                                                                            │
+│   Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Left/Right tabs   Enter details

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          > Overview   Interfaces   Routes   DNS   Connectivity   Latency   Trace   Conn
+│   Dashboard         ┌ Overview ──────────────────────────────────────────────────────────────────┐
+│   System +          │ loopback      +                                                            │
+│ > Network +         │ gateway       +  2 ms                                                      │
+│   Discovery +       │ dns           +  18 ms                                                     │
+│   Scanner -         │ internet_ipv4 +  21 ms                                                     │
+│   Security x        │ internet_ipv6 -  no non-loopback IPv6 address configured                   │
+│   Monitor |         │                                                                            │
+│   Doctor x          │2 up interface(s)                                                           │
+│   Reports           │                                                                            │
+│   Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+│                     ┌ Connectivity ──────────────────────────────────────────────────────────────┐
+│                     │IPv4          +                                                             │
+│                     │IPv6          ! not reachable                                               │
+│                     │DNS           +                                                             │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Tab next screen   Ctrl+P Palette

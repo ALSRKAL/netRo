@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ NETWORK DISCOVERY ─────────────────────────────────────────────────────────┐
+│   Dashboard         │ Scan           192.168.1.0/24                                              │
+│   System +          │ Method         -> auto   (Left/Right)                                      │
+│   Network +         │ Options        [x] resolve hostnames   [x] vendor lookup                   │
+│ > Discovery +       │  Discovery runs only on local subnets (private/loopback).                  │
+│   Scanner -         └────────────────────────────────────────────────────────────────────────────┘
+│   Security x        ┌ Hosts found ───────────────────────────────────────────────────────────────┐
+│   Monitor |         │IP             Hostname      MAC            Vendor       RTT       Open port│
+│   Doctor x          │> 192.168.1.1  router        aa:bb:cc:dd:ee Netgear      2.0 ms    80,443   │
+│   Reports           │192.168.1.10   laptop        28:cf:e9:00:00 Apple        3.0 ms    -        │
+│   Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  Space options   g start   Esc cancel

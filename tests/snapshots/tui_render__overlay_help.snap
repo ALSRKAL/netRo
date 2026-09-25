@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: "render_app(&mut app, 100, 30)"
+---
+│ NAVIGATION          ┌ OVERVIEW ──────────────────────────────────────────────────────────────────┐
+│ > Dashboard         │Host        zbook                                                           │
+│   System +      ┌ KEYBOARD SHORTCUTS ──────────────────────────────────────────┐                 │
+│   Network +     │KEYBOARD SHORTCUTS                                            │                 │
+│   Discovery +   │                                                              │─────────────────┘
+│   Scanner -     │Navigation                                                    │─────────────────┐
+│   Security x    │  ↑ ↓ / j k       Move selection                              │                 │
+│   Monitor |     │  Enter           Open / activate                             │                 │
+│   Doctor x      │  Esc             Back / cancel / clear filter                │                 │
+│   Reports       │  Tab / Shift+Tab Next / previous screen                      │                 │
+│   Snapshots -   │  q               Quit netro                                  │                 │
+│   Settings      │                                                              │                 │
+│                 │Global                                                        │                 │
+│ 88/100 (B)      │  /               Filter the current list                     │─────────────────┘
+│ Security score  │  Ctrl+P          Command palette                             │─────────────────┐
+│                 │  r               Refresh current screen                      │                 │
+│                 │  R               Refresh everything                          │                 │
+│                 │  ?               This help                                   │─────────────────┘
+│                 │  Ctrl+C          Quit immediately                            │─────────────────┐
+│                 │                                                              │                 │
+│                 │Screens                                                       │─────────────────┘
+│                 │  d               Run doctor                                  │─────────────────┐
+│                 │  g               Run current action (scan/discovery/report)  │                 │
+│                 │  p               Pause monitor                               │                 │
+│                 │  + / -           Monitor interval                            │                 │
+│                 │  c / s           Create baseline / scan integrity            │                 │
+│                 │  b / u           Block / unblock IP (firewall)               │                 │
+│                 └──────────────────────────────────────────────────────────────┘─────────────────┘
+ Esc Back
+  Tab next screen   Ctrl+P Palette

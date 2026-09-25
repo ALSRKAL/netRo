@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: "render_app(&mut app, 100, 30)"
+---
+│ NAVIGATION          ┌ OVERVIEW ──────────────────────────────────────────────────────────────────┐
+│ > Dashboard         │Host        zbook                                                           │
+│   System +          │OS          Ubuntu 24.04 24.04                                              │
+│   Network +         │Kernel      6.8.0-88-generic                                                │
+│   Discover┌ port 443 ───────────────────────────────────────────────────────────────┐────────────┘
+│   Scanner │PORT                                                                     │────────────┐
+│   Security│  443 tcp                                                                │            │
+│   Monitor │  open                                                                   │            │
+│   Doctor x│                                                                         │            │
+│   Reports │SERVICE                                                                  │            │
+│   Snapshot│  https/tls                                                              │            │
+│   Settings│  nginx 1.24.0                                                           │            │
+│           │                                                                         │            │
+│ 88/100 (B)│TLS                                                                      │────────────┘
+│ Security s│  handshake: ok                                                          │────────────┐
+│           │  protocol: TLSv1.3                                                      │            │
+│           │                                                                         │            │
+│           │Esc Close                                                                │────────────┘
+│           │                                                                         │────────────┐
+│           │                                                                         │            │
+│           │                                                                         │────────────┘
+│           │                                                                         │────────────┐
+│           │                                                                         │            │
+│           │                                                                         │            │
+│           │                                                                         │            │
+│           └─────────────────────────────────────────────────────────────────────────┘            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ Esc Back
+  Tab next screen   Ctrl+P Palette

@@ -1,0 +1,34 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+│ NAVIGATION          ┌ SNAPSHOTS ─────────────────────────────────────────────────────────────────┐
+│   Dashboard         │         Label             Created          Host           Ports   Findings │
+│   System +          │>        Baseline          2023-11-15 03:43 zbook          2       1        │
+│   Network +         │         Current           2023-11-16 07:30 zbook          2       1        │
+│   Discovery +       │                                                                            │
+│   Scanner -         │                                                                            │
+│   Security x        │                                                                            │
+│   Monitor |         │                                                                            │
+│   Doctor x          │                                                                            │
+│   Reports           │                                                                            │
+│ > Snapshots -       │                                                                            │
+│   Settings          │                                                                            │
+│                     │                                                                            │
+│ 88/100 (B)          │                                                                            │
+│ Security score      │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     │                                                                            │
+│                     └────────────────────────────────────────────────────────────────────────────┘
+│                     ┌────────────────────────────────────────────────────────────────────────────┐
+│                     │ c Create snapshot   m Mark for comparison   x Compare   d Delete   e Export│
+│                     └────────────────────────────────────────────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r Refresh   ? Help   q Quit
+  c create   m mark   x compare   d delete   e export

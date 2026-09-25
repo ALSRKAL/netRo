@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -D warnings
+
+jobs:
+  quality:
+    name: Format, lint, security audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+      - name: clippy (all targets)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: clippy (no default features)
+        run: cargo clippy --lib --no-default-features -- -D warnings
+      - name: cargo audit
+        uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    name: Test (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Unit tests
+        run: cargo test --lib --all-features
+      - name: Integration and CLI tests
+        run: cargo test --test cli --all-features
+      - name: TUI rendering and interaction tests
+        run: cargo test --test tui_render --test tui_interaction --all-features
+      - name: TUI snapshot review guard
+        shell: bash
+        run: |
+          if find tests/snapshots -name '*.snap.new' | grep -q .; then
+            echo "ERROR: unreviewed snapshot files found"
+            exit 1
+          fi
+      - name: Build release binary
+        run: cargo build --release --all-features
+      - name: Smoke test - version
+        shell: bash
+        run: ./target/release/netro version
+      - name: Smoke test - doctor JSON (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./target/release/netro doctor --json --no-internet > doctor.json
+          python3 - <<'PY'
+          import json
+          with open("doctor.json") as fh:
+              data = json.load(fh)
+          assert data["command"] == "doctor", data.get("command")
+          assert len(data["data"]["checks"]) >= 8
+          assert 0 <= data["data"]["summary"]["score"]["total"] <= 100
+          print("doctor JSON validated:", len(data["data"]["checks"]), "checks")
+          PY
+      - name: Smoke test - doctor JSON (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./target/release/netro.exe doctor --json --no-internet | Out-File -Encoding utf8 doctor.json
+          $data = Get-Content doctor.json -Raw | ConvertFrom-Json
+          if ($data.command -ne "doctor") { throw "unexpected command" }
+          if ($data.data.checks.Count -lt 8) { throw "too few checks" }
+          Write-Output "doctor JSON validated: $($data.data.checks.Count) checks"
+      - name: Smoke test - system/network/security JSON
+        shell: bash
+        continue-on-error: ${{ runner.os == 'Windows' }}
+        run: |
+          ./target/release/netro system --json > /dev/null
+          ./target/release/netro network interfaces --json > /dev/null
+          ./target/release/netro security audit --json > /dev/null
+          ./target/release/netro dependencies --json > /dev/null
+
+  tui-pty:
+    name: TUI PTY end-to-end (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: PTY tests (launch, navigation, resize, Ctrl+C, cleanup)
+        run: cargo test --test tui_pty --all-features
+
+  cross-check:
+    name: Cross compile check (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: ubuntu-latest
+          - target: aarch64-apple-darwin
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Cross compile check (TLS disabled - rustls needs a target C toolchain)
+        run: cargo check --target ${{ matrix.target }} --no-default-features

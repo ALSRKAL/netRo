@@ -1,0 +1,16 @@
+---
+source: tests/tui_render.rs
+expression: output
+---
+>Dash  System  Net  Disc  Scan  Sec  Mon
+
+┌ HEALTH ──────────────────────────────┐
+│ System    +    Routes    +           │
+│ CPU       +    DNS       +           │
+│ Memory    +    Internet  +           │
+└──────────────────────────────────────┘
+┌ NETWORK ─────────────────────────────┐
+└──────────────────────────────────────┘
+┌ RESOURCES ───────────────────────────┐
+└──────────────────────────────────────┘
+ -> Navigate   Enter Open   / Search   r
