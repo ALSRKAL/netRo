@@ -123,6 +123,15 @@ impl Session {
         self.output.lock().map(|g| g.clone()).unwrap_or_default()
     }
 
+    /// Tail of the captured output with escapes made visible, for assertion
+    /// messages (so a failure on another platform is diagnosable from CI logs).
+    fn tail(&self, chars: usize) -> String {
+        let text = self.text().replace('\u{1b}', "<ESC>");
+        let mut recent: Vec<char> = text.chars().rev().take(chars).collect();
+        recent.reverse();
+        recent.into_iter().collect()
+    }
+
     fn wait_for_text(&self, needle: &str, seconds: u64) -> bool {
         let deadline = Instant::now() + Duration::from_secs(seconds);
         while Instant::now() < deadline {
@@ -173,8 +182,8 @@ fn tui_launches_navigates_and_quits_cleanly() {
     let mut session = Session::spawn(100, 30);
     assert!(
         session.wait_for_text("NAVIGATION", 45),
-        "TUI did not render: {}",
-        session.text()
+        "TUI did not render; tail: {}",
+        session.tail(800)
     );
     assert!(session.wait_for_text("Dashboard", 15));
     std::thread::sleep(Duration::from_millis(300));
@@ -183,7 +192,8 @@ fn tui_launches_navigates_and_quits_cleanly() {
     session.send(b"?");
     assert!(
         session.wait_for_text("KEYBOARD SHORTCUTS", 20),
-        "help overlay missing"
+        "help overlay missing; tail: {}",
+        session.tail(800)
     );
     session.send_escape(); // Esc closes
 
@@ -191,8 +201,8 @@ fn tui_launches_navigates_and_quits_cleanly() {
     session.send(b"\t");
     assert!(
         session.wait_for_text("MEMORY", 20),
-        "system screen not reached: {}",
-        session.text()
+        "system screen not reached; tail: {}",
+        session.tail(800)
     );
 
     session.send(b"q");
@@ -213,9 +223,13 @@ fn tui_handles_resize_without_corruption() {
     let mut session = Session::spawn(80, 24);
     assert!(session.wait_for_text("NAVIGATION", 45));
     session.resize(130, 40);
-    std::thread::sleep(Duration::from_millis(300));
+    std::thread::sleep(Duration::from_millis(500));
     session.send(b"\t"); // System
-    assert!(session.wait_for_text("MEMORY", 20));
+    assert!(
+        session.wait_for_text("MEMORY", 20),
+        "system screen not reached after resize; tail: {}",
+        session.tail(800)
+    );
     session.send(b"q");
     assert_eq!(session.wait_exit(30), Some(0));
     assert!(!session.text().contains("panicked"));

@@ -842,6 +842,10 @@ impl App {
             KeyCode::Char('?') => {
                 self.state.overlay = Overlay::Help;
             }
+            // Some terminals/layouts deliver '?' as Shift+'/'.
+            KeyCode::Char('/') if key.modifiers.contains(KeyModifiers::SHIFT) => {
+                self.state.overlay = Overlay::Help;
+            }
             KeyCode::Char('p') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                 self.state.overlay = Overlay::Palette(PaletteState {
                     query: String::new(),
@@ -851,6 +855,14 @@ impl App {
             KeyCode::Char('/') => self.start_filter(),
             KeyCode::Tab => self.change_screen(1),
             KeyCode::BackTab => self.change_screen(-1),
+            // Windows ConPTY can deliver Tab as a control character.
+            KeyCode::Char('\t') => {
+                if key.modifiers.contains(KeyModifiers::SHIFT) {
+                    self.change_screen(-1);
+                } else {
+                    self.change_screen(1);
+                }
+            }
             KeyCode::Esc => self.escape(),
             KeyCode::Up | KeyCode::Char('k') => self.move_selection(-1),
             KeyCode::Down | KeyCode::Char('j') => self.move_selection(1),

@@ -33,6 +33,8 @@ impl Env {
             .env("XDG_CONFIG_HOME", self.dir.join("config"))
             .env("XDG_DATA_HOME", self.dir.join("data"))
             .env("XDG_CACHE_HOME", self.dir.join("cache"))
+            .env("APPDATA", self.dir.join("appdata"))
+            .env("LOCALAPPDATA", self.dir.join("localappdata"))
             .env("HOME", &self.dir)
             .env("NO_COLOR", "1")
             .output()
@@ -159,6 +161,10 @@ fn network_interfaces_json_is_array_with_loopback() {
     let value = json(&out);
     let interfaces = value["data"].as_array().expect("data array");
     assert!(!interfaces.is_empty());
+    // Unix exposes a loopback interface in the network table; Windows may not
+    // list the loopback pseudo-interface through the OS API, and netro reports
+    // what the OS provides rather than inventing an entry.
+    #[cfg(unix)]
     assert!(interfaces.iter().any(|i| i["kind"] == "loopback"));
 }
 

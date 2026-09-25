@@ -927,6 +927,10 @@ mod tests {
             classify_windows_interface("Ethernet", Some("Intel(R) Ethernet Connection")),
             InterfaceKind::Ethernet
         );
+        assert_eq!(
+            classify_windows_interface("Loopback Pseudo-Interface 1", None),
+            InterfaceKind::Loopback
+        );
     }
 
     #[test]
