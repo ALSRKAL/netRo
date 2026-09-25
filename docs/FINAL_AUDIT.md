@@ -20,8 +20,8 @@ NETRO FINAL AUDIT
 
 Architecture          PASS   (module boundaries + provider traits reviewed)
 Linux runtime         PASS   (all commands exercised end-to-end)
-Windows               COMPILE PASS / RUNTIME NOT TESTED (no Windows host here)
-macOS                 COMPILE PASS / RUNTIME NOT TESTED (no macOS host here)
+Windows               COMPILE PASS + CI RUNTIME PASS (TUI PTY tests on windows-latest)
+macOS                 COMPILE PASS + CI RUNTIME PASS (TUI PTY on macos-15-intel / macos-14)
 System Diagnostics    PASS
 Network Diagnostics   PASS
 Security Audit        PASS   (read-only paths; privileged apply paths untested)
@@ -82,19 +82,21 @@ Commands: `rg -n "Command::new\(\"(sh|bash|cmd" src/` → no matches.
   → PASS (all providers, PowerShell bridge, `windows-sys` elevation check).
 * TLS is feature-gated; the full-featured build requires MSVC on a Windows
   runner and is produced by `.github/workflows/release.yml`.
-* **Runtime behavior was not tested in this session** (no Windows machine or
-  runner available). PowerShell/CIM scripts, firewall rule creation and adapter
-  parsing are implemented but unverified at runtime. Treat Windows as
-  beta-quality until validated on a test host.
+* Runtime behavior was validated in CI by the TUI PTY job on `windows-latest`
+  (launch, navigation, resize, Ctrl+C, full doctor run, terminal cleanup). The
+  PowerShell/CIM providers are exercised by the doctor run (accounts, firewall
+  profiles, services, GPU, adapters). Firewall rule *creation* still requires
+  an elevated interactive session and remains untested automatically.
 
 ## macOS
 
 * Compile checks: `cargo check --target x86_64-apple-darwin --no-default-features`
   and `--target aarch64-apple-darwin --no-default-features` → PASS.
-* **Runtime behavior was not tested in this session** (no macOS machine or
-  runner available). `netstat`/`arp`/`ndp`/`lsof`/`scutil`/`socketfilterfw`/
-  `pfctl` parsing was validated against captured-format fixtures in unit tests
-  only.
+* Runtime behavior was validated in CI by the TUI PTY job on `macos-15-intel`
+  (Intel) and `macos-14` (Apple Silicon), including a full doctor run that
+  exercises `netstat`/`arp`/`ndp`/`lsof`/`scutil`/`socketfilterfw`/
+  `system_profiler`. `pfctl` rule changes still require root and are untested
+  automatically.
 
 ## Tests
 

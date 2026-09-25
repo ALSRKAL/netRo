@@ -8,9 +8,10 @@ rustc       1.90.0 / cargo 1.90
 terminal    real PTY via util-linux `script` and portable-pty
 ```
 
-Nothing below is claimed beyond the evidence shown. Windows/macOS runtime was
-**not** exercised in this session; only compile checks and CI configuration were
-produced here.
+Nothing below is claimed beyond the evidence shown. Windows and macOS runtime
+was exercised by the GitHub Actions PTY job (real ConPTY / macOS terminals) in
+addition to the local Linux runs; physical-hardware validation is still
+recommended for fleet deployment.
 
 ## Result table
 
@@ -30,13 +31,13 @@ produced here.
 | Security | PASS | ANSI/OSC injection tests at render boundary (tables + detail drawer), typed actions only, destructive actions behind confirmation |
 | Performance | PASS | time-to-first-frame immediate; steady-state idle ≈0% CPU (6s vs 18s runs); ~22 MB RSS; `scripts/bench.sh` records baselines |
 | Linux runtime | PASS | full PTY flows: launch, help, Tab navigation, resize, doctor with live streamed checks, Ctrl+C, quit |
-| Windows runtime | UNVERIFIED | compile check passes (`x86_64-pc-windows-gnu`); CI job `tui-pty` runs ConPTY tests but was not executed here |
-| macOS Intel runtime | UNVERIFIED | compile check passes (`x86_64-apple-darwin`); CI job configured, not executed here |
-| macOS ARM64 runtime | UNVERIFIED | compile check passes (`aarch64-apple-darwin`); CI job configured, not executed here |
+| Windows runtime | PASS (CI) | GitHub Actions `tui-pty` on `windows-latest`: launch, navigation, resize, Ctrl+C, doctor completion, terminal cleanup — all 6 PTY tests pass |
+| macOS Intel runtime | PASS (CI) | GitHub Actions `tui-pty` on `macos-15-intel`: same 6 PTY tests pass; compile check `x86_64-apple-darwin` also passes |
+| macOS ARM64 runtime | PASS (CI) | GitHub Actions `tui-pty` on `macos-14`: same 6 PTY tests pass; compile check `aarch64-apple-darwin` also passes |
 | Snapshot tests | PASS | `cargo test --test tui_render` → 11 tests, 45 snapshots; guard fails on unreviewed `.snap.new` |
 | PTY tests | PASS | `cargo test --test tui_pty` → 6 tests on Linux; non-terminal launch prints help (no hang) |
 | CI | PASS (config) | `.github/workflows/ci.yml` jobs: quality, test (incl. TUI render/interaction), tui-pty (4 platforms), cross-check; YAML validated |
-| Regression suite | PASS | `cargo test` → 239 tests green; `cargo fmt --check`, `clippy -D warnings` clean |
+| Regression suite | PASS | `cargo test` → 239 tests green; CI run `36197015929` completed `success` (12/12 jobs); `cargo fmt --check`, `clippy -D warnings` clean |
 
 ## What was fixed during the TUI self-review (10 passes)
 
@@ -75,8 +76,9 @@ produced here.
 ## Known limitations
 
 * Mouse clicks are not handled (scroll only).
-* Windows/macOS runtime behavior relies on CI; physical-hardware validation is
-  still recommended before calling those platforms production-ready.
+* Windows/macOS runtime is validated by GitHub-hosted runners (ConPTY and real
+  macOS terminals); physical-hardware validation is still recommended before
+  fleet deployment.
 * The TUI cannot elevate privileges; it reports `PERMISSION_REQUIRED` like the
   CLI.
 * Speed test is intentionally CLI-only (it needs a configured server); the

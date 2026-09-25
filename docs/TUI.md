@@ -147,6 +147,7 @@ Measured on Linux x86_64 (release build; see `scripts/bench.sh`):
 * The TUI cannot elevate privileges; privileged actions report
   `PERMISSION_REQUIRED` with instructions, exactly like the CLI.
 * Discovery and scanning are local-scope by default, matching the CLI rules.
-* Windows/macOS TUI runtime behavior is validated by CI (compile + PTY tests)
-  but has not been exercised on physical hardware in this development
-  environment; see `docs/TUI_FINAL_AUDIT.md`.
+* Windows/macOS TUI runtime is validated by the CI PTY job (ConPTY on Windows,
+  macOS Intel and Apple Silicon runners) in addition to compile checks; see
+  `docs/TUI_FINAL_AUDIT.md`. Physical-hardware validation is still recommended
+  before fleet deployment.
