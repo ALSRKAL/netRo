@@ -38,7 +38,7 @@ jobs:
             artifact: netro-macos-arm64
             archive: tar.gz
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.90.0
         with:
           targets: ${{ matrix.target }}

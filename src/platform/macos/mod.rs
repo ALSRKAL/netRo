@@ -619,7 +619,9 @@ impl FirewallControl for MacosPlatform {
             ips.push(ip.to_string());
         }
         let rules_file = pf_rules_path();
+        // Show the exact rule that will be added, not just the file write.
         let commands = vec![
+            format!("add rule: block drop quick from {ip} to any"),
             format!("write pf anchor rules to {}", rules_file.display()),
             format!("pfctl -a netro -f {}", rules_file.display()),
             "pfctl -e  # enable pf if currently disabled".to_string(),
@@ -691,6 +693,7 @@ impl FirewallControl for MacosPlatform {
         ips.retain(|s| s != &ip.to_string());
         let rules_file = pf_rules_path();
         let commands = vec![
+            format!("remove rule: block drop quick from {ip} to any"),
             format!("rewrite pf anchor rules to {}", rules_file.display()),
             format!("pfctl -a netro -f {}", rules_file.display()),
         ];

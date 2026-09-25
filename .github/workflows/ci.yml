@@ -18,7 +18,7 @@ jobs:
     name: Format, lint, security audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.90.0
         with:
           components: rustfmt, clippy
@@ -29,10 +29,17 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: clippy (no default features)
         run: cargo clippy --lib --no-default-features -- -D warnings
-      - name: cargo audit
-        uses: rustsec/audit-check@v2
+      - name: Cache cargo-audit
+        id: audit-cache
+        uses: actions/cache@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: ~/.cargo/bin/cargo-audit
+          key: cargo-audit-0.22.2-rust-1.90.0
+      - name: Install cargo-audit (pinned, locked)
+        if: steps.audit-cache.outputs.cache-hit != 'true'
+        run: cargo install cargo-audit --locked --version 0.22.2
+      - name: cargo audit
+        run: cargo audit
 
   test:
     name: Test (${{ matrix.os }})
@@ -42,7 +49,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-13, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.90.0
       - uses: Swatinem/rust-cache@v2
       - name: Unit tests
@@ -103,7 +110,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-13, macos-14]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.90.0
       - uses: Swatinem/rust-cache@v2
       - name: PTY tests (launch, navigation, resize, Ctrl+C, cleanup)
@@ -123,7 +130,7 @@ jobs:
             os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@1.90.0
         with:
           targets: ${{ matrix.target }}

@@ -10,6 +10,16 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+/// ConPTY is expensive and flaky when several sessions run concurrently on
+/// Windows CI; PTY tests are serialized so each one gets a clean terminal.
+static PTY_SERIAL: Mutex<()> = Mutex::new(());
+
+fn serial_guard() -> std::sync::MutexGuard<'static, ()> {
+    PTY_SERIAL
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
 struct Session {
     master: Box<dyn MasterPty + Send>,
     writer: Arc<Mutex<Box<dyn Write + Send>>>,
@@ -159,6 +169,7 @@ impl Drop for Session {
 
 #[test]
 fn tui_launches_navigates_and_quits_cleanly() {
+    let _serial = serial_guard();
     let mut session = Session::spawn(100, 30);
     assert!(
         session.wait_for_text("NAVIGATION", 45),
@@ -166,11 +177,12 @@ fn tui_launches_navigates_and_quits_cleanly() {
         session.text()
     );
     assert!(session.wait_for_text("Dashboard", 15));
+    std::thread::sleep(Duration::from_millis(300));
 
     // Help overlay via a real keypress.
     session.send(b"?");
     assert!(
-        session.wait_for_text("KEYBOARD SHORTCUTS", 15),
+        session.wait_for_text("KEYBOARD SHORTCUTS", 20),
         "help overlay missing"
     );
     session.send_escape(); // Esc closes
@@ -178,7 +190,7 @@ fn tui_launches_navigates_and_quits_cleanly() {
     // Tab navigates to the System screen.
     session.send(b"\t");
     assert!(
-        session.wait_for_text("MEMORY", 15),
+        session.wait_for_text("MEMORY", 20),
         "system screen not reached: {}",
         session.text()
     );
@@ -197,12 +209,13 @@ fn tui_launches_navigates_and_quits_cleanly() {
 
 #[test]
 fn tui_handles_resize_without_corruption() {
+    let _serial = serial_guard();
     let mut session = Session::spawn(80, 24);
     assert!(session.wait_for_text("NAVIGATION", 45));
     session.resize(130, 40);
     std::thread::sleep(Duration::from_millis(300));
     session.send(b"\t"); // System
-    assert!(session.wait_for_text("MEMORY", 15));
+    assert!(session.wait_for_text("MEMORY", 20));
     session.send(b"q");
     assert_eq!(session.wait_exit(30), Some(0));
     assert!(!session.text().contains("panicked"));
@@ -210,6 +223,7 @@ fn tui_handles_resize_without_corruption() {
 
 #[test]
 fn tui_ctrl_c_exits_and_restores_terminal() {
+    let _serial = serial_guard();
     let mut session = Session::spawn(90, 25);
     assert!(session.wait_for_text("NAVIGATION", 45));
     session.send(&[0x03]); // Ctrl+C
@@ -227,6 +241,7 @@ fn tui_ctrl_c_exits_and_restores_terminal() {
 
 #[test]
 fn tui_runs_doctor_and_renders_summary() {
+    let _serial = serial_guard();
     let mut session = Session::spawn(120, 34);
     assert!(session.wait_for_text("NAVIGATION", 45));
     session.send(b"d");
@@ -242,6 +257,7 @@ fn tui_runs_doctor_and_renders_summary() {
 
 #[test]
 fn tui_small_terminal_shows_guidance_not_corruption() {
+    let _serial = serial_guard();
     let mut session = Session::spawn(30, 8);
     assert!(
         session.wait_for_text("Terminal too small", 45),

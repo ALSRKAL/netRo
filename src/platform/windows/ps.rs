@@ -216,8 +216,11 @@ mod tests {
 
     #[test]
     fn encoded_command_is_utf16le() {
-        // "A" -> 0x41 0x00 -> "QQ=="
-        assert_eq!(encode_utf16le_base64("A"), "QQ==");
+        // "A" -> bytes 0x41 0x00 -> base64 "QQA=" (2 bytes encode to 3 chars
+        // plus one pad; verified against Python's base64 of UTF-16LE).
+        assert_eq!(encode_utf16le_base64("A"), "QQA=");
+        // "AB" -> 0x41 0x00 0x42 0x00 -> "QQBCAA=="
+        assert_eq!(encode_utf16le_base64("AB"), "QQBCAA==");
     }
 
     #[test]
