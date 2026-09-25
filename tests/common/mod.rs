@@ -40,6 +40,10 @@ pub fn fixture_app(width: u16, height: u16) -> App {
     );
     populate(&mut app);
     app.state.tick = 3;
+    // Environment-independent values so snapshots are identical on every OS.
+    app.state.nmap_installed = false;
+    app.state.config_path_display = "~/.config/netro/config.json".into();
+    app.state.snapshots_dir_display = "~/.local/share/netro/snapshots".into();
     app
 }
 

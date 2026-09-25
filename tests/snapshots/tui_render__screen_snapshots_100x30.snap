@@ -4,8 +4,8 @@ expression: output
 ---
 │ NAVIGATION          ┌ SNAPSHOTS ─────────────────────────────────────────────────────────────────┐
 │   Dashboard         │         Label             Created          Host           Ports   Findings │
-│   System +          │>        Baseline          2023-11-15 03:43 zbook          2       1        │
-│   Network +         │         Current           2023-11-16 07:30 zbook          2       1        │
+│   System +          │>        Baseline          <DATETIME> zbook          2       1        │
+│   Network +         │         Current           <DATETIME> zbook          2       1        │
 │   Discovery +       │                                                                            │
 │   Scanner -         │                                                                            │
 │   Security x        │                                                                            │

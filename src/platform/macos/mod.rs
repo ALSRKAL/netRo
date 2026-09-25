@@ -49,9 +49,11 @@ impl SystemProvider for MacosPlatform {
     fn gpu_info(&self) -> Result<Vec<GpuInfo>> {
         let path = which("system_profiler")
             .ok_or_else(|| dependency_missing("system_profiler", "GPU information"))?;
+        // `-detailLevel mini` keeps this fast (seconds instead of tens of
+        // seconds) while still reporting model, vendor and VRAM.
         let out = util::run_command(
             &path.to_string_lossy(),
-            &["SPDisplaysDataType", "-json"],
+            &["-detailLevel", "mini", "-json", "SPDisplaysDataType"],
             Duration::from_secs(30),
         )?;
         if !out.success() {

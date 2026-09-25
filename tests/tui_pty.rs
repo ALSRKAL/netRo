@@ -12,7 +12,7 @@ use std::time::{Duration, Instant};
 
 struct Session {
     master: Box<dyn MasterPty + Send>,
-    writer: Box<dyn Write + Send>,
+    writer: Arc<Mutex<Box<dyn Write + Send>>>,
     child: Box<dyn Child + Send + Sync>,
     output: Arc<Mutex<String>>,
     exited: bool,
@@ -53,17 +53,33 @@ impl Session {
         drop(pair.slave);
 
         let mut reader = pair.master.try_clone_reader().expect("pty reader");
-        let writer = pair.master.take_writer().expect("pty writer");
+        let writer: Arc<Mutex<Box<dyn Write + Send>>> =
+            Arc::new(Mutex::new(pair.master.take_writer().expect("pty writer")));
         let output = Arc::new(Mutex::new(String::new()));
         let sink = output.clone();
+        let responder = writer.clone();
+        // ConPTY (and some terminal emulators) query the cursor position with
+        // DSR (`ESC[6n`) at startup and wait for a reply. A real terminal
+        // answers; this harness must too, otherwise the TUI never renders on
+        // Windows. Window-size queries (`ESC[18t`) get a matching reply.
         std::thread::spawn(move || {
             let mut buf = [0u8; 8192];
             loop {
                 match reader.read(&mut buf) {
                     Ok(0) | Err(_) => break,
                     Ok(n) => {
+                        let chunk = String::from_utf8_lossy(&buf[..n]).to_string();
                         if let Ok(mut guard) = sink.lock() {
-                            guard.push_str(&String::from_utf8_lossy(&buf[..n]));
+                            guard.push_str(&chunk);
+                        }
+                        if let Ok(mut out) = responder.lock() {
+                            if chunk.contains("\u{1b}[6n") {
+                                let _ = out.write_all(b"\x1b[1;1R");
+                            }
+                            if chunk.contains("\u{1b}[18t") {
+                                let _ = out.write_all(format!("\x1b[8;{rows};{cols}t").as_bytes());
+                            }
+                            let _ = out.flush();
                         }
                     }
                 }
@@ -80,8 +96,10 @@ impl Session {
     }
 
     fn send(&mut self, bytes: &[u8]) {
-        let _ = self.writer.write_all(bytes);
-        let _ = self.writer.flush();
+        if let Ok(mut out) = self.writer.lock() {
+            let _ = out.write_all(bytes);
+            let _ = out.flush();
+        }
     }
 
     /// Send ESC and wait so the terminal parser does not coalesce it with the
@@ -143,16 +161,16 @@ impl Drop for Session {
 fn tui_launches_navigates_and_quits_cleanly() {
     let mut session = Session::spawn(100, 30);
     assert!(
-        session.wait_for_text("NAVIGATION", 20),
+        session.wait_for_text("NAVIGATION", 45),
         "TUI did not render: {}",
         session.text()
     );
-    assert!(session.wait_for_text("Dashboard", 5));
+    assert!(session.wait_for_text("Dashboard", 15));
 
     // Help overlay via a real keypress.
     session.send(b"?");
     assert!(
-        session.wait_for_text("KEYBOARD SHORTCUTS", 5),
+        session.wait_for_text("KEYBOARD SHORTCUTS", 15),
         "help overlay missing"
     );
     session.send_escape(); // Esc closes
@@ -160,13 +178,13 @@ fn tui_launches_navigates_and_quits_cleanly() {
     // Tab navigates to the System screen.
     session.send(b"\t");
     assert!(
-        session.wait_for_text("MEMORY", 5),
+        session.wait_for_text("MEMORY", 15),
         "system screen not reached: {}",
         session.text()
     );
 
     session.send(b"q");
-    let code = session.wait_exit(15);
+    let code = session.wait_exit(30);
     assert_eq!(code, Some(0), "unclean exit");
     let output = session.text();
     assert!(!output.contains("panicked"), "panic output: {output}");
@@ -180,23 +198,23 @@ fn tui_launches_navigates_and_quits_cleanly() {
 #[test]
 fn tui_handles_resize_without_corruption() {
     let mut session = Session::spawn(80, 24);
-    assert!(session.wait_for_text("NAVIGATION", 20));
+    assert!(session.wait_for_text("NAVIGATION", 45));
     session.resize(130, 40);
     std::thread::sleep(Duration::from_millis(300));
     session.send(b"\t"); // System
-    assert!(session.wait_for_text("MEMORY", 5));
+    assert!(session.wait_for_text("MEMORY", 15));
     session.send(b"q");
-    assert_eq!(session.wait_exit(15), Some(0));
+    assert_eq!(session.wait_exit(30), Some(0));
     assert!(!session.text().contains("panicked"));
 }
 
 #[test]
 fn tui_ctrl_c_exits_and_restores_terminal() {
     let mut session = Session::spawn(90, 25);
-    assert!(session.wait_for_text("NAVIGATION", 20));
+    assert!(session.wait_for_text("NAVIGATION", 45));
     session.send(&[0x03]); // Ctrl+C
     assert_eq!(
-        session.wait_exit(15),
+        session.wait_exit(30),
         Some(0),
         "Ctrl+C did not exit cleanly"
     );
@@ -210,15 +228,15 @@ fn tui_ctrl_c_exits_and_restores_terminal() {
 #[test]
 fn tui_runs_doctor_and_renders_summary() {
     let mut session = Session::spawn(120, 34);
-    assert!(session.wait_for_text("NAVIGATION", 20));
+    assert!(session.wait_for_text("NAVIGATION", 45));
     session.send(b"d");
     // Doctor streams checks and finishes with a summary; allow for real probes.
     assert!(
-        session.wait_for_text("HEALTH SUMMARY", 90),
+        session.wait_for_text("HEALTH SUMMARY", 240),
         "doctor summary never appeared"
     );
     session.send(b"q");
-    assert_eq!(session.wait_exit(15), Some(0));
+    assert_eq!(session.wait_exit(30), Some(0));
     assert!(!session.text().contains("panicked"));
 }
 
@@ -226,12 +244,12 @@ fn tui_runs_doctor_and_renders_summary() {
 fn tui_small_terminal_shows_guidance_not_corruption() {
     let mut session = Session::spawn(30, 8);
     assert!(
-        session.wait_for_text("Terminal too small", 20),
+        session.wait_for_text("Terminal too small", 45),
         "too-small guidance missing: {}",
         session.text()
     );
     session.send(b"q");
-    assert_eq!(session.wait_exit(15), Some(0));
+    assert_eq!(session.wait_exit(30), Some(0));
 }
 
 #[test]

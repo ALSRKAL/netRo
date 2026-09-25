@@ -4,7 +4,7 @@ expression: output
 ---
 │ NAVIGATION            Overview   Findings   Accounts   Listening Services   Firewall > Integrity
 │   Dashboard         ┌ Integrity ─────────────────────────────────────────────────────────────────┐
-│   System +          │ Baseline: 0 entries, created 2023-11-15 03:43:20 +0530                     │
+│   System +          │ Baseline: 0 entries, created <TIMESTAMP>                     │
 │   Network +         │ Paths: /etc/passwd, /etc/ssh/sshd_config                                   │
 │   Discovery +       │  c Create baseline   s Scan against baseline                               │
 │   Scanner -         │                                                                            │

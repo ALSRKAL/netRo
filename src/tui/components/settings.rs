@@ -212,10 +212,7 @@ fn render_footer(ui: &Ui, frame: &mut Frame, area: Rect) {
         ));
     } else {
         lines.push(Line::styled(
-            format!(
-                " saved config: {}",
-                crate::config::display_path(&crate::config::config_file())
-            ),
+            format!(" saved config: {}", ui.state.config_path_display),
             ui.theme.muted,
         ));
     }

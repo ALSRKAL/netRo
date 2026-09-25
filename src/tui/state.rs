@@ -622,6 +622,12 @@ pub struct AppState {
     pub system_selected: usize,
     pub security_sel: usize,
     pub status_message: Option<(String, Instant)>,
+    /// Detected once at startup; rendering must not probe the filesystem.
+    pub nmap_installed: bool,
+    /// Display strings for environment-dependent paths, resolved at startup so
+    /// components render identically on every platform.
+    pub config_path_display: String,
+    pub snapshots_dir_display: String,
 }
 
 impl AppState {
@@ -652,6 +658,11 @@ impl AppState {
             system_selected: 0,
             security_sel: 0,
             status_message: None,
+            nmap_installed: crate::util::which("nmap").is_some(),
+            config_path_display: crate::config::display_path(&crate::config::config_file()),
+            snapshots_dir_display: crate::config::display_path(
+                &crate::core::snapshot::snapshots_dir(),
+            ),
             config,
         }
     }

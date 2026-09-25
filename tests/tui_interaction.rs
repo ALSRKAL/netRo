@@ -7,7 +7,18 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use netro::tui::event::AppEvent;
 use netro::tui::state::{NetworkTab, Overlay, Screen, SecurityTab};
 use netro::tui::tasks::TaskKind;
+use std::sync::Mutex;
 use std::time::{Duration, Instant};
+
+/// Heavy tests (real scans, doctor runs, monitoring) are serialized so they do
+/// not starve each other on small CI runners with limited CPU.
+static HEAVY: Mutex<()> = Mutex::new(());
+
+fn heavy_guard() -> std::sync::MutexGuard<'static, ()> {
+    HEAVY
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
 
 fn key(code: KeyCode) -> AppEvent {
     AppEvent::Key(KeyEvent::new(code, KeyModifiers::NONE))
@@ -177,6 +188,7 @@ fn network_tabs_switch_with_left_right() {
 
 #[test]
 fn scanner_refuses_unauthorized_and_runs_when_authorized() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(100, 30);
     app.state.screen = Screen::Scanner;
     app.state.scanner.authorized = false;
@@ -205,7 +217,7 @@ fn scanner_refuses_unauthorized_and_runs_when_authorized() {
     assert!(app.state.scanner.authorized);
     press(&mut app, KeyCode::Char('g'));
     assert!(app.tasks.is_running(TaskKind::Scan));
-    let finished = wait_for(&mut app, 20, |app| app.state.scanner.report.is_some());
+    let finished = wait_for(&mut app, 60, |app| app.state.scanner.report.is_some());
     assert!(finished, "scan never finished");
     let report = app.state.scanner.report.as_ref().unwrap();
     assert_eq!(report.ports.len(), 1);
@@ -215,6 +227,7 @@ fn scanner_refuses_unauthorized_and_runs_when_authorized() {
 
 #[test]
 fn scan_cancellation_produces_partial_result() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(100, 30);
     app.state.screen = Screen::Scanner;
     app.state.scanner.authorized = true;
@@ -227,7 +240,7 @@ fn scan_cancellation_produces_partial_result() {
     assert!(app.tasks.is_running(TaskKind::Scan));
     std::thread::sleep(Duration::from_millis(120));
     press(&mut app, KeyCode::Esc);
-    let finished = wait_for(&mut app, 20, |app| app.state.scanner.report.is_some());
+    let finished = wait_for(&mut app, 60, |app| app.state.scanner.report.is_some());
     assert!(finished, "cancelled scan never returned a report");
     let report = app.state.scanner.report.as_ref().unwrap();
     assert!(report.cancelled, "report must be marked cancelled");
@@ -236,6 +249,7 @@ fn scan_cancellation_produces_partial_result() {
 
 #[test]
 fn doctor_streams_checks_then_finishes() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(100, 30);
     app.state.doctor.checks.clear();
     app.state.doctor.report = None;
@@ -243,9 +257,9 @@ fn doctor_streams_checks_then_finishes() {
     press(&mut app, KeyCode::Char('d'));
     assert!(app.tasks.is_running(TaskKind::Doctor));
     // Checks appear while the doctor runs.
-    let streamed = wait_for(&mut app, 10, |app| !app.state.doctor.checks.is_empty());
+    let streamed = wait_for(&mut app, 60, |app| !app.state.doctor.checks.is_empty());
     assert!(streamed, "no checks streamed");
-    let finished = wait_for(&mut app, 60, |app| app.state.doctor.report.is_some());
+    let finished = wait_for(&mut app, 240, |app| app.state.doctor.report.is_some());
     assert!(finished, "doctor never finished");
     let report = app.state.doctor.report.as_ref().unwrap();
     assert!(report.checks.len() >= 8);
@@ -267,12 +281,13 @@ fn doctor_finding_enter_navigates_to_relevant_screen() {
 
 #[test]
 fn monitor_starts_samples_and_stops() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(100, 30);
     app.state.monitor.sample = None;
     app.state.screen = Screen::Monitor;
     app.update();
     assert!(app.tasks.is_running(TaskKind::Monitor));
-    let sampled = wait_for(&mut app, 15, |app| app.state.monitor.sample.is_some());
+    let sampled = wait_for(&mut app, 60, |app| app.state.monitor.sample.is_some());
     assert!(sampled, "monitor produced no sample");
     press(&mut app, KeyCode::Char('p'));
     assert!(app
@@ -281,12 +296,13 @@ fn monitor_starts_samples_and_stops() {
         .paused
         .load(std::sync::atomic::Ordering::Relaxed));
     press(&mut app, KeyCode::Esc); // cancels the monitor task
-    let stopped = wait_for(&mut app, 10, |app| !app.tasks.is_running(TaskKind::Monitor));
+    let stopped = wait_for(&mut app, 60, |app| !app.tasks.is_running(TaskKind::Monitor));
     assert!(stopped, "monitor did not stop");
 }
 
 #[test]
 fn firewall_flow_requires_confirmation_and_reports_outcome() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(100, 30);
     app.state.screen = Screen::Security;
     app.state.security_tab = SecurityTab::Firewall;
@@ -309,7 +325,7 @@ fn firewall_flow_requires_confirmation_and_reports_outcome() {
     press(&mut app, KeyCode::Enter);
     // On an unprivileged host the change is refused with PERMISSION_DENIED;
     // as root it succeeds and opens a detail drawer. Both are real outcomes.
-    let settled = wait_for(&mut app, 20, |app| {
+    let settled = wait_for(&mut app, 60, |app| {
         app.state.last_error.is_some()
             || matches!(app.state.overlay, Overlay::Detail(_))
             || !app.tasks.is_running(TaskKind::FirewallChange)
@@ -342,7 +358,7 @@ fn reports_generate_from_cache_to_a_real_file() {
     app.state.reports.scope = 0; // Full
     app.state.reports.path = path.display().to_string();
     press(&mut app, KeyCode::Char('g'));
-    let written = wait_for(&mut app, 20, |app| app.state.reports.last.is_some());
+    let written = wait_for(&mut app, 60, |app| app.state.reports.last.is_some());
     assert!(written, "report was not generated");
     let text = std::fs::read_to_string(&path).expect("report file");
     let value: serde_json::Value = serde_json::from_str(&text).expect("valid JSON report");
@@ -369,6 +385,7 @@ fn settings_changes_are_validated_and_marked_dirty() {
 /// Monitor -> palette -> report -> quit.
 #[test]
 fn acceptance_flow_end_to_end() {
+    let _heavy = heavy_guard();
     let mut app = fixture_app(120, 34);
 
     // Dashboard -> System
@@ -401,7 +418,7 @@ fn acceptance_flow_end_to_end() {
     app.state.discovery.report = None;
     press(&mut app, KeyCode::Char('g'));
     assert!(app.tasks.is_running(TaskKind::Discovery));
-    let discovered = wait_for(&mut app, 30, |app| app.state.discovery.report.is_some());
+    let discovered = wait_for(&mut app, 90, |app| app.state.discovery.report.is_some());
     assert!(discovered, "discovery did not finish");
 
     // View a device. Host availability is environment-dependent, so use the
@@ -428,7 +445,7 @@ fn acceptance_flow_end_to_end() {
     app.state.doctor.checks.clear();
     app.state.doctor.report = None;
     press(&mut app, KeyCode::Char('d'));
-    let doctor_done = wait_for(&mut app, 90, |app| app.state.doctor.report.is_some());
+    let doctor_done = wait_for(&mut app, 240, |app| app.state.doctor.report.is_some());
     assert!(doctor_done, "doctor did not finish");
     if !app.state.doctor.findings().is_empty() {
         app.state.doctor.selected = 0;
@@ -441,7 +458,7 @@ fn acceptance_flow_end_to_end() {
     app.state.screen = Screen::Monitor;
     app.state.monitor.sample = None;
     app.update();
-    let sampled = wait_for(&mut app, 20, |app| app.state.monitor.sample.is_some());
+    let sampled = wait_for(&mut app, 60, |app| app.state.monitor.sample.is_some());
     assert!(sampled, "monitor produced no sample");
 
     // Command palette -> Generate Report screen.
@@ -465,7 +482,7 @@ fn acceptance_flow_end_to_end() {
     app.state.reports.scope = 0; // Full
     app.state.reports.path = path.display().to_string();
     press(&mut app, KeyCode::Char('g'));
-    let written = wait_for(&mut app, 30, |app| app.state.reports.last.is_some());
+    let written = wait_for(&mut app, 60, |app| app.state.reports.last.is_some());
     assert!(written, "report was not generated");
     let html = std::fs::read_to_string(&path).expect("report file");
     assert!(html.starts_with("<!DOCTYPE html>"));

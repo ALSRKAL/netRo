@@ -316,7 +316,7 @@ fn host_scan(ui: &Ui, frame: &mut Frame, area: Rect) {
 }
 
 fn nmap(ui: &Ui, frame: &mut Frame, area: Rect) {
-    let installed = crate::util::which("nmap").is_some();
+    let installed = ui.state.nmap_installed;
     let mut lines = Vec::new();
     if installed {
         lines.push(Line::styled(

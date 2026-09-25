@@ -4,10 +4,10 @@ expression: output
 ---
 │ NAVIGATION            Port scan   Host scan > Nmap
 │   Dashboard         ┌ Nmap ──────────────────────────────────────────────────────────────────────┐
-│   System +          │nmap is installed. Host discovery can use it as a method.                   │
+│   System +          │nmap is not installed.                                                      │
 │   Network +         │                                                                            │
-│   Discovery +       │The Discovery screen offers method 'nmap' (Left/Right to select).           │
-│ > Scanner -         │netro parses nmap -sn grepable output; it never builds shell strings.       │
+│   Discovery +       │Basic discovery works without nmap (neighbor table, ICMP, TCP probes).      │
+│ > Scanner -         │Install nmap to enable the nmap method; netro detects it automatically.     │
 │   Security x        │                                                                            │
 │   Monitor |         │                                                                            │
 │   Doctor x          │                                                                            │

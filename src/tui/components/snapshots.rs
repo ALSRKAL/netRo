@@ -91,8 +91,7 @@ fn render_hints(ui: &Ui, frame: &mut Frame, area: Rect) {
         Line::styled(
             format!(
                 " Enter {}   snapshots stored under {}",
-                T.snap_view,
-                crate::config::display_path(&crate::core::snapshot::snapshots_dir())
+                T.snap_view, ui.state.snapshots_dir_display
             ),
             ui.theme.muted,
         ),

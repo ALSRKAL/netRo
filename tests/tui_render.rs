@@ -11,6 +11,18 @@ use netro::tui::state::{
     SecurityTab,
 };
 
+/// Assert a snapshot after normalizing environment-dependent content.
+/// Timestamps render in the local timezone, so they are replaced with a token
+/// to keep snapshots identical on every platform and timezone.
+fn assert_render(name: &str, output: String) {
+    insta::with_settings!({filters => vec![
+        (r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [+-]\d{4}", "<TIMESTAMP>"),
+        (r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}", "<DATETIME>"),
+    ]}, {
+        insta::assert_snapshot!(name, output);
+    });
+}
+
 const SIZES: [(u16, u16); 6] = [
     (40, 12),
     (60, 20),
@@ -25,7 +37,7 @@ fn dashboard_at_all_required_sizes() {
     for (width, height) in SIZES {
         let mut app = fixture_app(width, height);
         let output = render_app(&mut app, width, height);
-        insta::assert_snapshot!(format!("dashboard_{width}x{height}"), output);
+        assert_render(&format!("dashboard_{width}x{height}"), output);
     }
 }
 
@@ -47,7 +59,7 @@ fn every_screen_at_100x30() {
         let mut app = fixture_app(100, 30);
         app.state.screen = screen;
         let output = render_app(&mut app, 100, 30);
-        insta::assert_snapshot!(format!("screen_{name}_100x30"), output);
+        assert_render(&format!("screen_{name}_100x30"), output);
     }
 }
 
@@ -59,7 +71,7 @@ fn network_tabs_render() {
         app.state.network_tab = tab;
         let output = render_app(&mut app, 100, 30);
         let name = format!("network_{:?}", tab).to_lowercase();
-        insta::assert_snapshot!(format!("network_tab_{name}"), output);
+        assert_render(&format!("network_tab_{name}"), output);
     }
 }
 
@@ -71,7 +83,7 @@ fn security_tabs_render() {
         app.state.security_tab = tab;
         let output = render_app(&mut app, 100, 30);
         let name = format!("{:?}", tab).to_lowercase();
-        insta::assert_snapshot!(format!("security_tab_{name}"), output);
+        assert_render(&format!("security_tab_{name}"), output);
     }
 }
 
@@ -84,7 +96,7 @@ fn scanner_tabs_render() {
         app.state.scanner.tab = tab;
         let output = render_app(&mut app, 100, 30);
         let name = format!("{:?}", tab).to_lowercase();
-        insta::assert_snapshot!(format!("scanner_tab_{name}"), output);
+        assert_render(&format!("scanner_tab_{name}"), output);
     }
 }
 
@@ -93,13 +105,13 @@ fn overlays_render() {
     let mut app = fixture_app(100, 30);
 
     app.state.overlay = Overlay::Help;
-    insta::assert_snapshot!("overlay_help", render_app(&mut app, 100, 30));
+    assert_render("overlay_help", render_app(&mut app, 100, 30));
 
     app.state.overlay = Overlay::Palette(PaletteState {
         query: "scan".into(),
         selected: 0,
     });
-    insta::assert_snapshot!("overlay_palette", render_app(&mut app, 100, 30));
+    assert_render("overlay_palette", render_app(&mut app, 100, 30));
 
     app.state.overlay = Overlay::Confirm(ConfirmState {
         title: "Block 192.168.1.15".into(),
@@ -111,14 +123,14 @@ fn overlays_render() {
         ],
         action: netro::tui::action::Action::FirewallBlock("192.168.1.15".into()),
     });
-    insta::assert_snapshot!("overlay_confirm", render_app(&mut app, 100, 30));
+    assert_render("overlay_confirm", render_app(&mut app, 100, 30));
 
     app.state.overlay = Overlay::Input(InputState {
         prompt: "Target".into(),
         value: "192.168.1.0/24".into(),
         kind: InputKind::DiscoveryTarget,
     });
-    insta::assert_snapshot!("overlay_input", render_app(&mut app, 100, 30));
+    assert_render("overlay_input", render_app(&mut app, 100, 30));
 
     app.state.overlay = Overlay::Error(
         netro::error::NetroError::new(
@@ -127,7 +139,7 @@ fn overlays_render() {
         )
         .with_hint("run the command with sudo, or as root"),
     );
-    insta::assert_snapshot!("overlay_error", render_app(&mut app, 100, 30));
+    assert_render("overlay_error", render_app(&mut app, 100, 30));
 
     app.state.overlay = Overlay::Detail(DetailState {
         title: "port 443".into(),
@@ -147,7 +159,7 @@ fn overlays_render() {
         ],
         scroll: 0,
     });
-    insta::assert_snapshot!("overlay_detail", render_app(&mut app, 100, 30));
+    assert_render("overlay_detail", render_app(&mut app, 100, 30));
 }
 
 #[test]
@@ -155,7 +167,7 @@ fn snapshot_diff_renders() {
     let mut app = fixture_app(100, 30);
     app.state.screen = Screen::Snapshots;
     app.state.snapshots.diff = Some(fixture_diff());
-    insta::assert_snapshot!("snapshots_diff", render_app(&mut app, 100, 30));
+    assert_render("snapshots_diff", render_app(&mut app, 100, 30));
 }
 
 #[test]
@@ -164,18 +176,18 @@ fn empty_states_render_with_guidance() {
     app.state.screen = Screen::System;
     let output = render_app(&mut app, 80, 24);
     assert!(output.contains("Loading") || output.contains("No "));
-    insta::assert_snapshot!("empty_system_80x24", output);
+    assert_render("empty_system_80x24", output);
 
     let mut app = empty_app(80, 24);
     app.state.screen = Screen::Network;
     app.state.network_tab = NetworkTab::Interfaces;
     let output = render_app(&mut app, 80, 24);
-    insta::assert_snapshot!("empty_network_80x24", output);
+    assert_render("empty_network_80x24", output);
 
     let mut app = empty_app(80, 24);
     app.state.screen = Screen::Snapshots;
     let output = render_app(&mut app, 80, 24);
-    insta::assert_snapshot!("empty_snapshots_80x24", output);
+    assert_render("empty_snapshots_80x24", output);
 }
 
 #[test]
@@ -183,7 +195,7 @@ fn too_small_terminal_shows_guidance() {
     let mut app = fixture_app(30, 8);
     let output = render_app(&mut app, 30, 8);
     assert!(output.contains("Terminal too small"));
-    insta::assert_snapshot!("too_small_30x8", output);
+    assert_render("too_small_30x8", output);
 }
 
 #[test]

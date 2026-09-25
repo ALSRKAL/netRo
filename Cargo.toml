@@ -59,7 +59,7 @@ version = "0.17"
 optional = true
 
 [dev-dependencies]
-insta = "1"
+insta = { version = "1", features = ["filters"] }
 portable-pty = "0.9"
 
 [profile.release]
