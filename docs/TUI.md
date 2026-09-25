@@ -46,13 +46,17 @@ Without a terminal (pipes, CI, cron), `netro` prints help instead of hanging.
 | `← →` / `h l` | switch tabs / change the selected setting (Scanner: cycle form fields) |
 | `Enter` | open / edit / run the focused field |
 | `Esc` | back, close overlay, clear filter, cancel a running task |
-| `Tab` / `Shift+Tab` | next / previous screen |
+| `Tab` / `Shift+Tab` | next / previous screen (aliases `N` / `P`) |
 | `/` | filter the current list (Enter keeps it, Esc clears) |
 | `Ctrl+P` | command palette (fuzzy match, typed actions) |
 | `r` / `R` | refresh current screen / everything |
-| `?` | contextual help |
+| `?` (alias `H`) | contextual help |
 | `q` | quit |
 | `Ctrl+C` | quit immediately (cancels running tasks) |
+
+Uppercase `N`/`P`/`H` aliases exist because some terminals and keyboard
+layouts deliver Tab/`?` through layout-dependent translation; the aliases are
+plain letters and work everywhere.
 
 Screen keys: `d` doctor, `g` run the screen's action, `p` pause monitor,
 `+`/`-` monitor interval, `c`/`s` integrity baseline/scan, `b`/`u` firewall

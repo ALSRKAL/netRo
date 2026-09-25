@@ -48,7 +48,9 @@ produced here.
    direction rates and sparklines; label columns widened in scanner/discovery.
 3. **Responsive**: dashboard layout constraints adjusted after reviewing
    snapshots at all six required sizes.
-4. **Interaction**: scanner form fields cycle with Left/Right and toggle with
+4. **Interaction**: keyboard aliases `N`/`P` (screen navigation) and `H`
+   (help) added after Windows PTY tests showed ConPTY can drop Tab/`?`;
+   scanner form fields cycle with Left/Right and toggle with
    Space (Tab stays global for screens; 1/2/3 switch scanner tabs); Enter edits
    text fields; doctor findings navigate with Enter
    (`i` opens details); footer hints match the real bindings.

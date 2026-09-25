@@ -848,6 +848,9 @@ fn classify_windows_interface(name: &str, description: Option<&str>) -> Interfac
         name.to_ascii_lowercase(),
         description.unwrap_or("").to_ascii_lowercase()
     );
+    if combined.contains("loopback") {
+        return InterfaceKind::Loopback;
+    }
     if combined.contains("wi-fi") || combined.contains("wifi") || combined.contains("wireless") {
         return InterfaceKind::Wifi;
     }
@@ -855,7 +858,6 @@ fn classify_windows_interface(name: &str, description: Option<&str>) -> Interfac
         || combined.contains("vmware")
         || combined.contains("hyper-v")
         || combined.contains("vbox")
-        || combined.contains("loopback")
     {
         return InterfaceKind::Virtual;
     }

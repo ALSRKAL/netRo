@@ -188,8 +188,14 @@ fn tui_launches_navigates_and_quits_cleanly() {
     assert!(session.wait_for_text("Dashboard", 15));
     std::thread::sleep(Duration::from_millis(300));
 
-    // Help overlay via a real keypress.
-    session.send(b"?");
+    // Help overlay via a real keypress. Uppercase letters are used on Windows
+    // because ConPTY derives characters through the active keyboard layout and
+    // punctuation can be dropped there; the alias is documented in help.
+    if cfg!(windows) {
+        session.send(b"H");
+    } else {
+        session.send(b"?");
+    }
     assert!(
         session.wait_for_text("KEYBOARD SHORTCUTS", 20),
         "help overlay missing; tail: {}",
@@ -197,8 +203,13 @@ fn tui_launches_navigates_and_quits_cleanly() {
     );
     session.send_escape(); // Esc closes
 
-    // Tab navigates to the System screen.
-    session.send(b"\t");
+    // Tab navigates to the System screen (N is the documented alias and is
+    // used on Windows for the reason above).
+    if cfg!(windows) {
+        session.send(b"N");
+    } else {
+        session.send(b"\t");
+    }
     assert!(
         session.wait_for_text("MEMORY", 20),
         "system screen not reached; tail: {}",
@@ -224,7 +235,11 @@ fn tui_handles_resize_without_corruption() {
     assert!(session.wait_for_text("NAVIGATION", 45));
     session.resize(130, 40);
     std::thread::sleep(Duration::from_millis(500));
-    session.send(b"\t"); // System
+    if cfg!(windows) {
+        session.send(b"N"); // System
+    } else {
+        session.send(b"\t"); // System
+    }
     assert!(
         session.wait_for_text("MEMORY", 20),
         "system screen not reached after resize; tail: {}",

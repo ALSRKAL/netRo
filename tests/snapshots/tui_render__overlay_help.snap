@@ -1,6 +1,6 @@
 ---
 source: tests/tui_render.rs
-expression: "render_app(&mut app, 100, 30)"
+expression: output
 ---
 │ NAVIGATION          ┌ OVERVIEW ──────────────────────────────────────────────────────────────────┐
 │ > Dashboard         │Host        zbook                                                           │
@@ -11,7 +11,7 @@ expression: "render_app(&mut app, 100, 30)"
 │   Security x    │  ↑ ↓ / j k       Move selection                              │                 │
 │   Monitor |     │  Enter           Open / activate                             │                 │
 │   Doctor x      │  Esc             Back / cancel / clear filter                │                 │
-│   Reports       │  Tab / Shift+Tab Next / previous screen                      │                 │
+│   Reports       │  Tab / Shift+Tab Next / previous screen (aliases: N / P)     │                 │
 │   Snapshots -   │  q               Quit netro                                  │                 │
 │   Settings      │                                                              │                 │
 │                 │Global                                                        │                 │
@@ -19,7 +19,7 @@ expression: "render_app(&mut app, 100, 30)"
 │ Security score  │  Ctrl+P          Command palette                             │─────────────────┐
 │                 │  r               Refresh current screen                      │                 │
 │                 │  R               Refresh everything                          │                 │
-│                 │  ?               This help                                   │─────────────────┘
+│                 │  ? / H           This help                                   │─────────────────┘
 │                 │  Ctrl+C          Quit immediately                            │─────────────────┐
 │                 │                                                              │                 │
 │                 │Screens                                                       │─────────────────┘

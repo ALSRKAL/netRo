@@ -839,7 +839,7 @@ impl App {
         }
         match key.code {
             KeyCode::Char('q') => self.should_quit = true,
-            KeyCode::Char('?') => {
+            KeyCode::Char('?') | KeyCode::Char('H') => {
                 self.state.overlay = Overlay::Help;
             }
             // Some terminals/layouts deliver '?' as Shift+'/'.
@@ -853,8 +853,8 @@ impl App {
                 });
             }
             KeyCode::Char('/') => self.start_filter(),
-            KeyCode::Tab => self.change_screen(1),
-            KeyCode::BackTab => self.change_screen(-1),
+            KeyCode::Tab | KeyCode::Char('N') => self.change_screen(1),
+            KeyCode::BackTab | KeyCode::Char('P') => self.change_screen(-1),
             // Windows ConPTY can deliver Tab as a control character.
             KeyCode::Char('\t') => {
                 if key.modifiers.contains(KeyModifiers::SHIFT) {
