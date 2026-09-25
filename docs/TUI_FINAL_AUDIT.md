@@ -48,8 +48,10 @@ produced here.
    direction rates and sparklines; label columns widened in scanner/discovery.
 3. **Responsive**: dashboard layout constraints adjusted after reviewing
    snapshots at all six required sizes.
-4. **Interaction**: keyboard aliases `N`/`P` (screen navigation) and `H`
-   (help) added after Windows PTY tests showed ConPTY can drop Tab/`?`;
+4. **Interaction**: Windows delivers both key-press and key-release records;
+   releases were being handled, double-triggering every action (two screens per
+   Tab). Releases are now ignored. Plain-letter aliases `N`/`P` (screen
+   navigation) and `H` (help) were also added;
    scanner form fields cycle with Left/Right and toggle with
    Space (Tab stays global for screens; 1/2/3 switch scanner tabs); Enter edits
    text fields; doctor findings navigate with Enter

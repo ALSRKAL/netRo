@@ -18,7 +18,7 @@ use crate::tui::terminal::TerminalGuard;
 use crate::tui::theme::{Theme, ThemeKind};
 use crate::tui::{components, text::T};
 use crate::util;
-use crossterm::event::{KeyCode, KeyEvent, KeyModifiers, MouseEventKind};
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers, MouseEventKind};
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout, Rect};
 use ratatui::Frame;
@@ -798,7 +798,15 @@ impl App {
 
     pub fn handle_event(&mut self, event: AppEvent) {
         match event {
-            AppEvent::Key(key) => self.handle_key(key),
+            AppEvent::Key(key) => {
+                // Windows delivers both press and release records; handling the
+                // release too would double-trigger every action (e.g. moving two
+                // screens per Tab). Releases are ignored.
+                if key.kind == KeyEventKind::Release {
+                    return;
+                }
+                self.handle_key(key)
+            }
             AppEvent::Mouse(mouse) => match mouse.kind {
                 MouseEventKind::ScrollDown => self.move_selection(1),
                 MouseEventKind::ScrollUp => self.move_selection(-1),
