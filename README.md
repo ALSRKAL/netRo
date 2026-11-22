@@ -1,5 +1,10 @@
 # netRo
 
+[![CI](https://github.com/ALSRKAL/netRo/actions/workflows/ci.yml/badge.svg)](https://github.com/ALSRKAL/netRo/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Rust 1.83+](https://img.shields.io/badge/rust-1.83%2B-orange.svg)](https://www.rust-lang.org/)
+[![Platforms](https://img.shields.io/badge/platforms-Linux%20%C2%B7%20Windows%20%C2%B7%20macOS-lightgrey.svg)](#supported-platforms)
+
 Cross-platform system, network, diagnostics, monitoring and security-audit CLI
 for Linux, Windows and macOS. Every result comes from a real check; anything a
 platform cannot do is reported as `UNSUPPORTED`, `DEPENDENCY_MISSING` or
@@ -19,6 +24,17 @@ platform cannot do is reported as `UNSUPPORTED`, `DEPENDENCY_MISSING` or
   `--json`/`--csv` for automation.
 
 Both modes call the same diagnostic engine; the TUI never shells out.
+
+## Screenshots
+
+Current Rust TUI screenshots coming soon; this section is reserved for them.
+
+<!-- Drop captures into docs/assets/ and reference them here, e.g.:
+![netRo TUI dashboard](docs/assets/tui-dashboard.png)
+![netRo doctor report](docs/assets/doctor-report.png)
+-->
+
+(The images in `docs/assets/` today show the legacy Bash tool, not v5.)
 
 ## What it does
 
