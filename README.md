@@ -27,14 +27,21 @@ Both modes call the same diagnostic engine; the TUI never shells out.
 
 ## Screenshots
 
-Current Rust TUI screenshots coming soon; this section is reserved for them.
+![netRo v5 TUI dashboard](docs/assets/tui-dashboard.png)
 
-<!-- Drop captures into docs/assets/ and reference them here, e.g.:
-![netRo TUI dashboard](docs/assets/tui-dashboard.png)
-![netRo doctor report](docs/assets/doctor-report.png)
--->
+_The v5 TUI dashboard: streamed health checks, network summary, resource gauges and findings._
 
-(The images in `docs/assets/` today show the legacy Bash tool, not v5.)
+![netro doctor report](docs/assets/doctor-report.png)
+
+_`netro doctor`: full system and security audit with scored findings, evidence and remediation._
+
+![port scan with TLS detection](docs/assets/port-scan.png)
+
+_`netro network scan`: TCP connect scan with banner grabbing and TLS certificate detection._
+
+![DNS queries](docs/assets/dns-queries.png)
+
+_`netro network dns`: real resolver queries with rcode, TTLs and latency, including reverse lookups._
 
 ## What it does
 
