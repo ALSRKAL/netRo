@@ -286,7 +286,7 @@ pub fn scan_with(
         if options.is_cancelled() {
             break;
         }
-        results.extend(scan_ip(*ip, ports, options, observer));
+        results.extend(scan_ip(*ip, ports, options, observer, target));
     }
 
     if options.udp && !options.is_cancelled() {
@@ -328,6 +328,7 @@ fn scan_ip(
     ports: &[u16],
     options: &ScanOptions,
     observer: &mut dyn FnMut(ScanProgress),
+    target: &str,
 ) -> Vec<ScannedPort> {
     let workers = options.concurrency.clamp(1, 1024).min(ports.len().max(1));
     let next = AtomicUsize::new(0);
@@ -347,7 +348,7 @@ fn scan_ip(
                     break;
                 }
                 let port = ports[index];
-                let result = probe_tcp_port(ip, port, options);
+                let result = probe_tcp_port(ip, port, options, target);
                 if tx.send(result).is_err() {
                     break;
                 }
@@ -378,7 +379,7 @@ fn scan_ip(
     })
 }
 
-fn probe_tcp_port(ip: IpAddr, port: u16, options: &ScanOptions) -> ScannedPort {
+fn probe_tcp_port(ip: IpAddr, port: u16, options: &ScanOptions, target: &str) -> ScannedPort {
     let addr = SocketAddr::new(ip, port);
     match TcpStream::connect_timeout(&addr, options.timeout) {
         Ok(_stream) => {
@@ -405,7 +406,7 @@ fn probe_tcp_port(ip: IpAddr, port: u16, options: &ScanOptions) -> ScannedPort {
             };
 
             if options.tls && likely_tls(port) {
-                scanned.tls = Some(tls_probe(ip, port, options.timeout));
+                scanned.tls = Some(tls_probe(ip, port, options.timeout, Some(target)));
                 if scanned
                     .tls
                     .as_ref()
@@ -586,8 +587,8 @@ fn split_product_version(text: &str) -> (Option<String>, Option<String>) {
 // ---------------------------------------------------------------------------
 
 #[cfg(feature = "tls")]
-fn tls_probe(ip: IpAddr, port: u16, timeout: Duration) -> TlsInfo {
-    match tls_probe_inner(ip, port, timeout) {
+fn tls_probe(ip: IpAddr, port: u16, timeout: Duration, host: Option<&str>) -> TlsInfo {
+    match tls_probe_inner(ip, port, timeout, host) {
         Ok(info) => info,
         Err(e) => TlsInfo {
             handshake_ok: false,
@@ -610,6 +611,7 @@ fn tls_probe_inner(
     ip: IpAddr,
     port: u16,
     timeout: Duration,
+    host: Option<&str>,
 ) -> std::result::Result<TlsInfo, String> {
     use rustls::pki_types::ServerName;
     use std::sync::Arc;
@@ -621,9 +623,17 @@ fn tls_probe_inner(
         .with_root_certificates(root_store)
         .with_no_client_auth();
 
-    let server_name = match ip {
-        IpAddr::V4(v4) => ServerName::IpAddress(v4.into()),
-        IpAddr::V6(v6) => ServerName::IpAddress(v6.into()),
+    // Certificate validation and SNI need the original DNS name when the
+    // scan target was a hostname; probing by IP alone both skips SNI and
+    // validates the certificate against the address, which fails for any
+    // name-based virtual host. TryFrom accepts IP literals unchanged.
+    let server_name = match host {
+        Some(name) => ServerName::try_from(name.to_string())
+            .map_err(|e| format!("invalid TLS server name '{name}': {e}"))?,
+        None => match ip {
+            IpAddr::V4(v4) => ServerName::IpAddress(v4.into()),
+            IpAddr::V6(v6) => ServerName::IpAddress(v6.into()),
+        },
     };
 
     let conn = rustls::ClientConnection::new(Arc::new(config), server_name)
@@ -737,7 +747,7 @@ fn format_name(name: &x509_parser::x509::X509Name<'_>) -> String {
 }
 
 #[cfg(not(feature = "tls"))]
-fn tls_probe(_ip: IpAddr, _port: u16, _timeout: Duration) -> TlsInfo {
+fn tls_probe(_ip: IpAddr, _port: u16, _timeout: Duration, _host: Option<&str>) -> TlsInfo {
     TlsInfo {
         handshake_ok: false,
         error: Some(
@@ -997,4 +1007,4 @@ mod tests {
         assert_eq!(report.ports[0].state, PortState::Open);
         assert_eq!(report.ports[0].port, port);
     }
-}
+            }
